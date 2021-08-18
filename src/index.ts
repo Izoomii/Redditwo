@@ -44,6 +44,14 @@ app.get('/post/r/:subreddit', (req, res) => {
     res.json(result)
 })
 
+app.get('/post/u/:user', (req, res) => {
+    const user = req.params.user;
+    console.log(user)
+    const result = database.filter((value) => value.username === `r/${user}`);
+    res.json(result)
+})
+
+
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
