@@ -1,34 +1,5 @@
 import express from "express"
-import couchbase, { connect } from "couchbase"
 
-
-//mess taken from "https://docs.couchbase.com/nodejs-sdk/current/hello-world/start-using-sdk.html"
-async function main() {
-    const cluster = await connect("couchbase://localhost", {
-        username: "Administrator",
-        password: "password",
-    });
-
-    // ^ copied from couchbase doc so will need to look into it.
-    // couchbase.Cluster deprecated ??
-    // @deprecated Use the static sdk-level {@link connect} method instead.
-
-    // replaced the original with "couchbase.Cluster" with "await connect", have no idea if it will work but i hope. programmer spirit.
-    // see https://forums.couchbase.com/t/typescript-support/28984/4
-
-
-    // get a reference to our bucket
-    const bucket = cluster.bucket("travel-sample");
-
-    //  get a reference to our collection
-    const collection = bucket.scope("inventory").collection("airline");
-
-    // get a reference to the default collection, required for older Couchbase server versions
-    const collection_default = bucket.defaultCollection();
-
-
-
-}
 
 
 const app = express();
