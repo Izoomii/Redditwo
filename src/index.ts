@@ -27,12 +27,14 @@ const database: CreatePostPayload[] = [];
 
 //copied from prisma docs
 
+//bruh email doesnt accept "alice@prisma.io" for some reason, changing it with anything else works, -_-
+
 async function main() {
   // ... you will write your Prisma Client queries here
   await prisma.user.create({
     data: {
       name: 'Alice',
-      email: 'alice@prisma.io',
+      email: "alice123@prisma.io",
       posts: {
         create: { title: 'Hello World' },
       },
