@@ -8,66 +8,14 @@ const app = express();
 const port = 3000
 
 
-
-/**
- * Users WIP EVERYONE ANON
- * Subreddits WIP ANYONE CAN JOIN ANY SUBREDDIT
- * Posts <-
- */
-
-interface CreatePostPayload {
-    username: string;
-    subreddit: string;
-    message: string;
-}
-
-const database: CreatePostPayload[] = [];
-
-
-
-//copied from prisma docs
-
-// async function main() {
-
-//   // ... you will write your Prisma Client queries here
-
-//   await prisma.redditwoUser.create({
-//     data: {
-//       name: 'Alice',
-//       email: "alice@prisma.io",
-//       sub: "r/aatroxmains",
-//       post: "god damn aatrox is such a good champ fucked by meta i hate rito i will now proceed to burn half the amazon forest as a protest",
-//     },
-//   })
-
-//   const allUsers = await prisma.redditwoUser.findMany()
-//   console.dir(allUsers)
-
-// }
-
-
-// main()
-//   .catch((e) => {
-//     throw e
-//   })
-//   .finally(async () => {
-//     await prisma.$disconnect()
-//   })
-
-
-
 app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
   res.send('Hello World2!')
 })
 
-// app.get('/post/u/:user', (req, res) => {
-//     const user = req.params.user;
-//     console.log(user)
-//     const result = database.filter((value) => value.username === `r/${user}`);
-//     res.json(result)
-// })
+
+
 
 
 app.post('/users', async (req, res) => {
@@ -100,12 +48,22 @@ app.get(`/r/:subreddit`, async (req, res) => {
 
 app.get(`/u/:user`, async (req, res) => {
   const theUser = req.params.user
-  const allSubPosts = await prisma.redditwoUser.findMany({
+  const allUserPosts = await prisma.redditwoUser.findMany({
     where: {
       name: theUser
     }
   })
-  res.json(allSubPosts)
+  res.json(allUserPosts)
+})
+
+app.delete('/u/:id', async (req, res) => {
+  const userID = parseInt(req.params.id);
+  const user = await prisma.redditwoUser.delete({
+    where: {
+      id: userID
+    }
+  })
+  
 })
 
 
