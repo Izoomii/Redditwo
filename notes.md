@@ -43,3 +43,10 @@ main()
     await prisma.$disconnect()
   })
 
+
+
+
+
+# TODO:
+
+## change code to create user then have user post something, rather than make a new "user" with different id for every post, effectively giving each "user" one post.
