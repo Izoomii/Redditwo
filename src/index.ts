@@ -1,5 +1,5 @@
 import express from "express"
-import { PrismaClient, User } from '@prisma/client'
+import { PrismaClient, User, Post } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -10,34 +10,29 @@ const port = 3000
 
 app.use(express.urlencoded({ extended: true }));
 
+interface searchWords {
+  words: string;
+}
+
+
+//hello world but it has a 2 at the end
 app.get('/', (req, res) => {
   res.send('Hello World2!')
 })
 
-//code definitely has bugs if trying to post, havent checked or tried, yet, will do
 
-
-app.post('/users', async (req, res) => {
-  const body = req.body as User;
-  await prisma.user.create({
-    data: {
-      id: body.id,
-      name: body.name,
-      email: body.email,
-      sub: body.sub,
-      //post: body.post
-    }
-  })
-})
-
+//finds all users registered
 app.get('/users', async (_, res) => {
   const users = await prisma.user.findMany();
   res.json(users)
 })
 
+
+
+//finds all posts of a subreddit
 app.get(`/r/:subreddit`, async (req, res) => {
   const sub = req.params.subreddit
-  const allSubPosts = await prisma.user.findMany({
+  const allSubPosts = await prisma.post.findMany({
     where: {
       sub: sub
     }
@@ -45,21 +40,65 @@ app.get(`/r/:subreddit`, async (req, res) => {
   res.json(allSubPosts)
 })
 
+
+//finds all posts of a user
 app.get(`/u/:user`, async (req, res) => {
   const theUser = req.params.user
-  const allUserPosts = await prisma.user.findMany({
+  const allUserPosts = await prisma.post.findMany({
     where: {
-      name: theUser
+      authorName: theUser
     }
   })
   res.json(allUserPosts)
 })
 
-app.delete('/u/:id', async (req, res) => {
-  const userID = parseInt(req.params.id);
+
+//searches all posts in database for a specific keyword(s)
+app.get('/searchposts', async (req, res) => {
+  const keyWord = req.body as searchWords
+  const results = await prisma.post.findMany({
+    where: {
+      content: {
+        contains: keyWord.words
+      }
+    }
+  })
+  res.json(results)
+})
+
+
+//creates a user
+app.post('/createuser', async (req, res) => {
+  const body = req.body as User;
+  await prisma.user.create({
+    data: {
+      name: body.name,
+      email: body.email,
+    }
+  })
+})
+
+
+//creates a new post for a user
+app.post('/createpost', async (req, res) => {
+  const body = req.body as Post
+  await prisma.post.create({
+    data: {
+      sub: body.sub,
+      title: body.title,
+      content: body.content,
+      authorName: body.authorName
+    }
+  })
+})
+
+
+//deletes user
+app.delete('/u/:name', async (req, res) => {
+  const userName = req.params.name
   const user = await prisma.user.delete({
     where: {
-      id: userID
+      name: userName
     }
   })
   
