@@ -30,20 +30,23 @@ generator client {
 
 model User {
   //id      Int     @id @default(autoincrement())
-  email   String  @unique
-  name    String? @unique
-  post    Post[]
+  email     String  @unique
+  nickname  String  @unique
+  password  String
+  name      String?
+  post      Post[]
 }
 
 
 model Post {
   id          Int       @id @default(autoincrement())
-  sub         String?
+  sub         String
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   title       String    @db.VarChar(255)
   content     String?
   published   Boolean   @default(false)
-  author      User      @relation(fields: [authorName], references: [name])
+  author      User      @relation(fields: [authorName], references: [nickname])
   authorName  String    // relation scalar field  (used in the `@relation` attribute above)
 }
+

@@ -1,7 +1,8 @@
 import express from "express";
 import { PrismaClient, User, Post } from "@prisma/client";
-import { sha256 } from "js-sha256";
-import { argon2id, hash, verify } from "argon2";
+import { sha256 } from "js-sha256"; // currently using argon2 instead
+import { hash, verify } from "argon2";
+
 const prisma = new PrismaClient();
 
 const app = express();
@@ -13,26 +14,26 @@ interface searchWords {
   words: string;
 }
 
-const foo = async () => {
+//testing password stuff
+const hashArgon2 = async (password: string) => {
   try {
-    const hashStr = await hash("password");
-    //console.log(hashStr);
+    const hashStr = await hash(password);
     return hashStr;
   } catch (err) {
     console.log(err);
   }
 };
-let hashed = foo();
 
-const passVerify = async () => {
-  if (await verify(await hashed, "password")) {
-    console.log("success");
+const passVerify = async (hashedPassword: string, password: string) => {
+  if (await verify(hashedPassword, password)) {
+    //console.log("success");
+    return true;
   } else {
-    console.log("failed");
+    //console.log("failed");
+    return false;
   }
 };
 
-passVerify();
 //hello world but it has a 2 at the end
 app.get("/", (req, res) => {
   res.send("Hello World2!");
@@ -79,15 +80,44 @@ app.get("/searchposts", async (req, res) => {
   res.json(results);
 });
 
+//verifies a user's identity
+app.get("/verifyme", async (req, res) => {
+  const body = req.body;
+  //console.log(body);
+  const user = await prisma.user.findUnique({
+    where: {
+      nickname: body.nickname,
+    },
+  });
+  //console.log(user);
+  if (user == null) {
+    res.send("There is no user with that nickname, please try again.");
+  } else {
+    let verify = passVerify(user.password, body.password);
+    if ((await verify) == true) {
+      res.send(`Your password is correct, welcome ${user.nickname}`);
+    } else {
+      res.send("Wrong password, please try again.");
+    }
+  }
+});
+
 //creates a user
 app.post("/createuser", async (req, res) => {
   const body = req.body as User;
-  await prisma.user.create({
-    data: {
-      name: body.name,
-      email: body.email,
-    },
-  });
+  console.log(body);
+  if (req.body.password === req.body.repeatPassword) {
+    await prisma.user.create({
+      data: {
+        email: body.email,
+        nickname: body.nickname,
+        password: await hashArgon2(body.password),
+      },
+    });
+    console.log("Profile created!");
+  } else {
+    console.log("Passwords don't match.");
+  }
 });
 
 //creates a new post for a user
@@ -108,7 +138,7 @@ app.delete("/u/:name", async (req, res) => {
   const userName = req.params.name;
   const user = await prisma.user.delete({
     where: {
-      name: userName,
+      nickname: userName,
     },
   });
 });
