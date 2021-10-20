@@ -21,8 +21,6 @@ class-validator to validate classes, might not need it now but it's here
 
 
 
-
-
 main()
   .catch((e) => {
     throw e
@@ -38,3 +36,6 @@ main()
 # TODO:
 
 # literally auth
+
+
+all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password
