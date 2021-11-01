@@ -38,4 +38,6 @@ main()
 # literally auth
 
 
+AUTH WORKS, JUST. BARELY, ITS LITERALLY ON THE EDGE, BUT HASNT FALLEN YET, WHICH IS GOOD ENOUGH, GOOD ENOUGH, LITERALLY ONE TRIP AND THE WHOLE SHIP EXPLODES, BUT IDC, AUTH WORKS, IT DIDNT EXPLODE, I WILL FIX IT... L A T E R.
+
 all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password

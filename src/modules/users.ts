@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { PrismaClient, User, Post } from "@prisma/client";
-import { hash, verify } from "argon2";
+import { PrismaClient, User } from "@prisma/client";
+import * as argonfuncs from "../modules/authfuncs";
 
 const prisma = new PrismaClient();
 
@@ -38,7 +38,7 @@ userRouter.get("/verifyme", async (req, res) => {
   if (user == null) {
     res.send("There is no user with that nickname, please try again.");
   } else {
-    let verify = passVerify(user.password, body.password);
+    let verify = argonfuncs.default.passVerify(user.password, body.password);
     if ((await verify) == true) {
       res.send(`Your password is correct, welcome ${user.nickname}`);
     } else {
@@ -65,7 +65,7 @@ userRouter.post("/createuser", async (req, res) => {
         data: {
           email: body.email,
           nickname: body.nickname,
-          password: await hashArgon2(body.password),
+          password: await argonfuncs.default.hashArgon2(body.password),
         },
       });
       console.log("Profile created!");
@@ -87,26 +87,5 @@ userRouter.delete("/u/:name", async (req, res) => {
     },
   });
 });
-
-//hash function using argon2
-const hashArgon2 = async (password: string) => {
-  try {
-    const hashStr = await hash(password);
-    return hashStr;
-  } catch (err) {
-    console.log(err);
-  }
-};
-
-//verifies a user with their password
-const passVerify = async (hashedPassword: string, password: string) => {
-  if (await verify(hashedPassword, password)) {
-    //console.log("success");
-    return true;
-  } else {
-    //console.log("failed");
-    return false;
-  }
-};
 
 export = userRouter;
