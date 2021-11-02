@@ -33,11 +33,13 @@ main()
 
 
 
-# TODO:
+## TODO:
+# implement auth with other services, also, make those services -_-
 
-# literally auth
+example of a cookie taken after successful auth of "Izumi":
+[
+  'connect.sid=s%3AJF-P6RwZW_Fp3IYAHnFwJh0oFh630QRH.Aj3vvXOg5o%2FPLVJjwJl2A0cTQfZLHT6xHrNuF%2B36j7w'
+]
 
-
-AUTH WORKS, JUST. BARELY, ITS LITERALLY ON THE EDGE, BUT HASNT FALLEN YET, WHICH IS GOOD ENOUGH, GOOD ENOUGH, LITERALLY ONE TRIP AND THE WHOLE SHIP EXPLODES, BUT IDC, AUTH WORKS, IT DIDNT EXPLODE, I WILL FIX IT... L A T E R.
 
 all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password
