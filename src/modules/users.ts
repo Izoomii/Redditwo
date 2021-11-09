@@ -15,35 +15,28 @@ userRouter.get("/users", async (_, res) => {
 
 //finds all posts of a user
 userRouter.get(`/u/:user`, async (req, res) => {
-  const theUser = req.params.user;
+  const user = req.params.user;
   const allUserPosts = await prisma.post.findMany({
     where: {
-      authorName: theUser,
+      authorName: user,
     },
   });
   res.json(allUserPosts);
-  console.log(`Searched posts of user ${theUser}`);
+  console.log(`Searched posts of user ${user}`);
+  if (req.user) {
+    let connectedUser = req.user as User;
+    if (connectedUser.nickname == user) {
+      console.log(connectedUser.nickname + " It's you!");
+    }
+  }
 });
 
 //verifies a user's identity
 userRouter.get("/verifyme", async (req, res) => {
-  const body = req.body;
-  //console.log(body);
-  const user = await prisma.user.findUnique({
-    where: {
-      nickname: body.nickname,
-    },
-  });
-  //console.log(user);
-  if (user == null) {
-    res.send("There is no user with that nickname, please try again.");
+  if (!req.user) {
+    res.send("You are not logged in");
   } else {
-    let verify = argonfuncs.default.passVerify(user.password, body.password);
-    if ((await verify) == true) {
-      res.send(`Your password is correct, welcome ${user.nickname}`);
-    } else {
-      res.send("Wrong password, please try again.");
-    }
+    res.send(req.user);
   }
 });
 

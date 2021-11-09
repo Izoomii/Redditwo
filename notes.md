@@ -35,11 +35,17 @@ main()
 
 ## TODO:
 # implement auth with other services, also, make those services -_-
+# introduce pug, render main page.
+remove:
+- verify user
+- delete user(or set it up otherwise)
+
+
+> after auth, passport sends user info in **req.user**
 
 example of a cookie taken after successful auth of "Izumi":
 [
   'connect.sid=s%3AJF-P6RwZW_Fp3IYAHnFwJh0oFh630QRH.Aj3vvXOg5o%2FPLVJjwJl2A0cTQfZLHT6xHrNuF%2B36j7w'
 ]
 
-
-all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password
+### all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password

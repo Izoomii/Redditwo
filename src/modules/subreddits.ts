@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PrismaClient, User, Post } from "@prisma/client";
+import { PrismaClient, Post, User } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -39,16 +39,22 @@ subredditRouter.get("/searchposts", async (req, res) => {
 //creates a new post for a user
 subredditRouter.post("/createpost", async (req, res) => {
   const body = req.body as Post;
-  await prisma.post.create({
-    data: {
-      sub: body.sub,
-      title: body.title,
-      content: body.content,
-      authorName: body.authorName,
-    },
-  });
-  res.send(`Post created in ${body.sub}!\n Title: ${body.title}`);
-  console.log(`Post created in sub ${body.sub} with title "${body.title}"`);
+  if (!req.user) {
+    res.send("Please connect first to be able to make posts");
+    console.log("Cannot create a post without being logged in");
+  } else {
+    let connectedUser = req.user as User;
+    await prisma.post.create({
+      data: {
+        sub: body.sub,
+        title: body.title,
+        content: body.content,
+        authorName: connectedUser.nickname,
+      },
+    });
+    res.send(`Post created in ${body.sub}!\n Title: ${body.title}`);
+    console.log(`Post created in sub ${body.sub} with title "${body.title}"`);
+  }
 });
 
 export = subredditRouter;
