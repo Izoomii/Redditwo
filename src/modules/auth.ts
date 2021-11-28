@@ -13,12 +13,14 @@ const authRouter = Router();
 // });
 
 authRouter.get("/login", (req, res, next) => {
+  res.render("login.pug");
   if (!req.user) {
-    res.render("main.pug", { loginTitle: "Login Page" });
+    //res.render("404.pug");
+    console.log("No user, staying on the same page");
   } else {
     res.redirect("/");
     //let user = req.user as User;
-    // res.render("main.pug", {
+    // res.render("login.pug", {
     //   loginTitle: `You are already logged in ${user.nickname}!`,
     // });
   }
@@ -26,7 +28,6 @@ authRouter.get("/login", (req, res, next) => {
 
 authRouter.post("/login", (req, res, next) => {
   //console.log(authenticate);
-  console.log("called auth");
   return authenticate("local", {
     successRedirect: "/",
     //failureRedirect: "/auth",

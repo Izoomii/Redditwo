@@ -1,5 +1,5 @@
 import express from "express";
-import { PrismaClient, User } from "@prisma/client";
+import { PrismaClient, User, Post } from "@prisma/client";
 import session from "express-session";
 //import { sha256 } from "js-sha256"; // currently using argon2 instead
 import passport from "passport";
@@ -7,6 +7,7 @@ import authRouter from "./modules/auth";
 import userRouter from "./modules/users";
 import subredditRouter from "./modules/subreddits";
 import localStrat from "./strategies/local";
+import { any, string } from "joi";
 //import { render } from "pug"; //not needed, express can call it in view engine
 //import { renderFile, render } from "pug";
 const prisma = new PrismaClient();
@@ -44,7 +45,7 @@ app.use(subredditRouter);
 
 app.get("/test", async (req, res) => {
   try {
-    res.render("main.pug");
+    res.render("404.pug");
   } catch (err) {
     console.log(err, "\nrender failed");
   }
@@ -59,7 +60,8 @@ app.get("/", async (req, res) => {
       createdAt: "desc",
     },
   });
-  res.send(posts);
+  res.render("main.pug", renderMain(posts));
+  //res.send(posts);
   let cookie = getcookie(req);
   if (cookie == undefined) {
     console.log("No cookie created yet.");
@@ -67,6 +69,21 @@ app.get("/", async (req, res) => {
     console.log(cookie);
   }
 });
+
+interface LooseObject {
+  [key: string]: any;
+}
+
+function renderMain(posts: Post[]) {
+  let obj: LooseObject = {};
+  posts.forEach((e, i) => {
+    obj[`postTitle${i}`] = e.title;
+    obj[`postAuthor${i}`] = e.authorName;
+    obj[`postContent${i}`] = e.content;
+    //console.log(obj);
+  });
+  return obj;
+}
 
 function getcookie(req: any) {
   try {

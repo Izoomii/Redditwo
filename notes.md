@@ -1,3 +1,6 @@
+#### UPDATES HAVE BEEN DISABLED ON PACKAGES IN PACKAGE JSON
+
+
 # HTTP
 
 ## POST
@@ -35,11 +38,9 @@ main()
 
 ## TODO:
 # implement auth with other services, also, make those services -_-
-# introduce pug, render main page.
-remove:
-- verify user
-- delete user(or set it up otherwise)
+# improve main page with tailwind
 
+# add saved feature, and later upvotes
 
 > after auth, passport sends user info in **req.user**
 
@@ -49,3 +50,24 @@ example of a cookie taken after successful auth of "Izumi":
 ]
 
 ### all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<form>
+  <input name 1>
+  <input name 2>
+  <button type submit>
+</form>

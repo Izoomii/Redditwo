@@ -1,0 +1,18 @@
+html
+  head
+    title 404
+  body
+    h1 Page not found/implemented, test
+    p Countdown 
+    p(id="p1") S
+    br
+    button(type="button", onclick="func()") Button func
+    script. 
+      function func() {
+        for (let i=0; i<10; i++) {
+          setTimeout(() => {
+            document.getElementById("p1").innerHTML =  i
+          }, 1000)
+        }
+      }
+
