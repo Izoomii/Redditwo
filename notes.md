@@ -34,13 +34,16 @@ main()
 
 
 
-
+##CURRENTLY PURGING PUG FROM PROJECT. PUG DOESNT RENDER ANYMORE EVERYTHING IS COMMENTED OUT, ONLY THINGS LEFT ARE THE FILES IN VIEWS FOLDER
 
 ## TODO:
 # implement auth with other services, also, make those services -_-
 # improve main page with tailwind
 
 # add saved feature, and later upvotes
+
+## error with get request to auth/login after being logged in
+
 
 > after auth, passport sends user info in **req.user**
 

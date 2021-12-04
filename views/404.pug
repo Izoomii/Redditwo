@@ -1,18 +1,23 @@
 html
   head
     title 404
+    meta(charset="UTF-8")
+    style 
+      include ../public/styles/styles.css
   body
-    h1 Page not found/implemented, test
+    h1(class="text-red-500 text-2xl") Page not found/implemented, test
     p Countdown 
     p(id="p1") S
     br
-    button(type="button", onclick="func()") Button func
+    button(type="button", onclick="func()OH IM NOT DEFINED SUCK MY ASS") Button func
     script. 
-      function func() {
-        for (let i=0; i<10; i++) {
+      - console.log("ass")
+      - function func() {
+        for (let i=0; i<11; i++) {
           setTimeout(() => {
-            document.getElementById("p1").innerHTML =  i
+            document.getElementById("p1").innerHTML = i 
           }, 1000)
         }
       }
+      
 

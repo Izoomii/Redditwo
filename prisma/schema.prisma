@@ -36,7 +36,7 @@ model User {
   name      String?
   post      Post[]
 }
-
+//is it better to have an array with all saved post IDs or link them with the post db table somehow??
 
 model Post {
   id          Int       @id @default(autoincrement())
@@ -48,5 +48,11 @@ model Post {
   published   Boolean   @default(false)
   author      User      @relation(fields: [authorName], references: [nickname])
   authorName  String    // relation scalar field  (used in the `@relation` attribute above)
+  
 }
 
+
+
+//User => Post
+//  post cannnot exist without user
+//  need savedList where IDs of posts can be linked without being created with post

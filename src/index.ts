@@ -1,3 +1,11 @@
+import React from "react";
+import ReactDOM from "react-dom";
+
+import App from "./test";
+//import registerServiceWorker from './registerServiceWorker';
+
+//registerServiceWorker();
+
 import express from "express";
 import { PrismaClient, User, Post } from "@prisma/client";
 import session from "express-session";
@@ -8,6 +16,7 @@ import userRouter from "./modules/users";
 import subredditRouter from "./modules/subreddits";
 import localStrat from "./strategies/local";
 import { any, string } from "joi";
+import { type } from "os";
 //import { render } from "pug"; //not needed, express can call it in view engine
 //import { renderFile, render } from "pug";
 const prisma = new PrismaClient();
@@ -23,7 +32,10 @@ app.use(
   })
 );
 
-app.set("view engine", "pug");
+//correct syntax but need to show it.
+// ReactDOM.render(React.createElement(App), document.getElementById("root"));
+
+//app.set("view engine", "pug");
 app.use(express.urlencoded({ extended: true }));
 
 //refers to the function that handles local strategy logic in local.ts
@@ -43,9 +55,20 @@ app.use("/auth", authRouter);
 app.use(userRouter);
 app.use(subredditRouter);
 
+let str: Array<any> = ["A", "B", 3];
+
+console.log(str);
+
 app.get("/test", async (req, res) => {
   try {
-    res.render("404.pug");
+    if (typeof window !== "undefined") {
+      console.log("window type defined, condition met -__-");
+      ReactDOM.render(
+        React.createElement(App),
+        document.getElementById("root")
+      );
+    }
+    //res.render("404.pug");
   } catch (err) {
     console.log(err, "\nrender failed");
   }
@@ -60,8 +83,8 @@ app.get("/", async (req, res) => {
       createdAt: "desc",
     },
   });
-  res.render("main.pug", renderMain(posts));
-  //res.send(posts);
+  //res.render("main.pug", renderMain(posts));
+  res.send(posts);
   let cookie = getcookie(req);
   if (cookie == undefined) {
     console.log("No cookie created yet.");

@@ -1,13 +1,12 @@
 html 
     head 
-        link(rel="stylesheet", href="./tailwind.min.css", type="text/css")
-        link(rel='stylesheet', href='styles.css')
+        meta(charset="UTF-8")
+        link(href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet")
+
         title Main Page 
-        style 
-            include ./tailwind.min.css
 
     body
-        h1(class="text-red-600") Main Page
+        h1(class="text-6xl") Main Page
         div
             h4=postTitle0
             h5 By #{postAuthor0}

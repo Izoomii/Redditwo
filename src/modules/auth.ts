@@ -13,8 +13,9 @@ const authRouter = Router();
 // });
 
 authRouter.get("/login", (req, res, next) => {
-  res.render("login.pug");
+  //res.render("login.pug");
   if (!req.user) {
+    res.send("Login page. You are not logged in");
     //res.render("404.pug");
     console.log("No user, staying on the same page");
   } else {
