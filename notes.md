@@ -50,7 +50,8 @@ class-validator to validate classes, might not need it now but it's here
   }
 
 
-
+  let str: Array<any> = ["A", "B", 3];
+  console.log(str);
 
 main()
   .catch((e) => {

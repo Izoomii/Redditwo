@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev src/index.ts",
     "tailwind:css": "postcss public/styles/tailwind.css -o public/styles/styles.css"
   },
   "dependencies": {

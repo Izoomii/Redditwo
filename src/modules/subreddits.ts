@@ -9,6 +9,34 @@ interface searchWords {
   words: string;
 }
 
+subredditRouter.get("/main", async (req, res) => {
+  //console.log(req.session);
+  const posts = await prisma.post.findMany({
+    take: 10,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  res.send(posts);
+  let cookie = getcookie(req);
+  if (cookie == undefined) {
+    console.log("No cookie created yet.");
+  } else {
+    console.log(cookie);
+  }
+});
+
+function getcookie(req: any) {
+  try {
+    var cookie = req.headers.cookie;
+    // user=someone; session=QyhYzXhkTZawIb5qSl3KKyPVN (this is my cookie i get)
+    console.log("Cookie:");
+    return cookie.split("; ");
+  } catch {
+    console.log("Error fetching cookie from header.");
+  }
+}
+
 //finds all posts of a subreddit
 subredditRouter.get(`/r/:subreddit`, async (req, res) => {
   const sub = req.params.subreddit;
