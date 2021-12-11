@@ -1,26 +1,54 @@
 #### UPDATES HAVE BEEN DISABLED ON PACKAGES IN PACKAGE JSON
 
+### all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password
 
-# HTTP
-
-## POST
-Post requests are usually used for "Posting/Adding" informations to the server.
-## GET
-This is what the browser uses per default.
-Get requests are usually used for "Getting/Querying" information from the server.
-## PUT
-## DELETE
+## Pug files are in the project but unused, will delete after Nextjs is set up and working
 
 
+## TODO:
+> implement auth with other services, also, make those services -_-
+> add saved feature, and later upvotes
+> improve main page with tailwind
 
 
-installed sha256, argon2, joi and class-validator, may need to install auth-js later but i dont see why now.
+## CRITICAL ERRORS:
+>> Running nextjs and opening a page (Not found since i havent made any) leaves node using port 3000 even after terminating the program, 25% cpu usage and unable to use localhost 3000 anymore.
+  > cause: 
+      server.all("*", (req, res) => {
+        return handle(req, res);
+      });
 
-sha256 to format strings to fixed lenght digests
-argon2 to generate storable passwords strings (i hope)
+
+
+## Known errors
+> error with get request to auth/login after being logged in
+> undefined when searching for posts
+
+
+
+
+
+## ==================================================================================================================================
+## ==================================================================================================================================
+
+> after auth, passport sends user info in **req.user**
+
+>HTTP
+>POST: Post requests are usually used for "Posting/Adding" informations to the server.
+>GET: This is what the browser uses per default. Get requests are usually used for "Getting/Querying" information from the server.
+>PUT
+>DELETE
+
+
 joi to validate variable types and all
-
 class-validator to validate classes, might not need it now but it's here
+
+
+//very usefull
+  interface LooseObject {
+    [key: string]: any;
+  }
+
 
 
 
@@ -34,37 +62,13 @@ main()
 
 
 
-##CURRENTLY PURGING PUG FROM PROJECT. PUG DOESNT RENDER ANYMORE EVERYTHING IS COMMENTED OUT, ONLY THINGS LEFT ARE THE FILES IN VIEWS FOLDER
-
-## TODO:
-# implement auth with other services, also, make those services -_-
-# improve main page with tailwind
-
-# add saved feature, and later upvotes
-
-## error with get request to auth/login after being logged in
 
 
-> after auth, passport sends user info in **req.user**
 
 example of a cookie taken after successful auth of "Izumi":
 [
   'connect.sid=s%3AJF-P6RwZW_Fp3IYAHnFwJh0oFh630QRH.Aj3vvXOg5o%2FPLVJjwJl2A0cTQfZLHT6xHrNuF%2B36j7w'
 ]
-
-### all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

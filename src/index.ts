@@ -1,5 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import next from "next";
+const dev = process.env.NODE_ENV !== "production";
+const app = next({ dev });
+const handle = app.getRequestHandler();
 
 import App from "./test";
 //import registerServiceWorker from './registerServiceWorker';
@@ -15,110 +19,102 @@ import authRouter from "./modules/auth";
 import userRouter from "./modules/users";
 import subredditRouter from "./modules/subreddits";
 import localStrat from "./strategies/local";
-import { any, string } from "joi";
-import { type } from "os";
-//import { render } from "pug"; //not needed, express can call it in view engine
-//import { renderFile, render } from "pug";
-const prisma = new PrismaClient();
-const app = express();
+//import { any, string } from "joi";
+//import { type } from "os";
 const port = 3000;
+const prisma = new PrismaClient();
 
-app.use(
-  session({
-    secret: "some secret",
-    cookie: { maxAge: 30000 }, //how long the cookie stays
-    resave: true,
-    saveUninitialized: false,
-  })
-);
+app.prepare().then(() => {
+  const server = express();
 
-//correct syntax but need to show it.
-// ReactDOM.render(React.createElement(App), document.getElementById("root"));
+  server.use(
+    session({
+      secret: "some secret",
+      cookie: { maxAge: 30000 }, //how long the cookie stays
+      resave: true,
+      saveUninitialized: false,
+    })
+  );
 
-//app.set("view engine", "pug");
-app.use(express.urlencoded({ extended: true }));
+  //correct syntax but need to show it.
+  // ReactDOM.render(React.createElement(App), document.getElementById("root"));
 
-//refers to the function that handles local strategy logic in local.ts
-localStrat();
+  //server.set("view engine", "pug");
+  server.use(express.urlencoded({ extended: true }));
 
-passport.serializeUser((user: User, done) => {
-  done(null, user);
-});
-passport.deserializeUser((user: User, done) => {
-  done(null, user);
-});
+  //refers to the function that handles local strategy logic in local.ts
+  localStrat();
 
-app.use(passport.initialize());
-app.use(passport.session());
+  passport.serializeUser((user: User, done) => {
+    done(null, user);
+  });
+  passport.deserializeUser((user: User, done) => {
+    done(null, user);
+  });
 
-app.use("/auth", authRouter);
-app.use(userRouter);
-app.use(subredditRouter);
+  server.use(passport.initialize());
+  server.use(passport.session());
 
-let str: Array<any> = ["A", "B", 3];
+  server.use("/auth", authRouter);
+  server.use(userRouter);
+  server.use(subredditRouter);
 
-console.log(str);
+  let str: Array<any> = ["A", "B", 3];
+  console.log(str);
 
-app.get("/test", async (req, res) => {
-  try {
-    if (typeof window !== "undefined") {
-      console.log("window type defined, condition met -__-");
-      ReactDOM.render(
-        React.createElement(App),
-        document.getElementById("root")
-      );
+  //this makes it work but stops responding after rendering first page and node keeps running with 25% cpu power even after terminating the server
+  //it is specifically the "*" part, its what's causing this entire thing but also the thing that enables it to compile the first time :/
+  //
+  // server.all("*", (req, res) => {
+  //   return handle(req, res);
+  // });
+
+  server.get("/index", async (req, res) => {
+    return handle(req, res);
+    //says it compiled it, doesnt show anything
+  });
+
+  server.get("/test", async (req, res) => {
+    try {
+      //rendering test page should be here...
+      //res.send("test page ok");
+    } catch (err) {
+      console.log(err, "\nrender failed");
     }
-    //res.render("404.pug");
-  } catch (err) {
-    console.log(err, "\nrender failed");
-  }
-});
-
-//main page
-app.get("/", async (req, res) => {
-  //console.log(req.session);
-  const posts = await prisma.post.findMany({
-    take: 10,
-    orderBy: {
-      createdAt: "desc",
-    },
   });
-  //res.render("main.pug", renderMain(posts));
-  res.send(posts);
-  let cookie = getcookie(req);
-  if (cookie == undefined) {
-    console.log("No cookie created yet.");
-  } else {
-    console.log(cookie);
-  }
-});
 
-interface LooseObject {
-  [key: string]: any;
-}
-
-function renderMain(posts: Post[]) {
-  let obj: LooseObject = {};
-  posts.forEach((e, i) => {
-    obj[`postTitle${i}`] = e.title;
-    obj[`postAuthor${i}`] = e.authorName;
-    obj[`postContent${i}`] = e.content;
-    //console.log(obj);
+  //main page
+  server.get("/", async (req, res) => {
+    //console.log(req.session);
+    const posts = await prisma.post.findMany({
+      take: 10,
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    res.send(posts);
+    let cookie = getcookie(req);
+    if (cookie == undefined) {
+      console.log("No cookie created yet.");
+    } else {
+      console.log(cookie);
+    }
   });
-  return obj;
-}
 
-function getcookie(req: any) {
-  try {
-    var cookie = req.headers.cookie;
-    // user=someone; session=QyhYzXhkTZawIb5qSl3KKyPVN (this is my cookie i get)
-    console.log("Cookie:");
-    return cookie.split("; ");
-  } catch {
-    console.log("Error fetching cookie from header.");
+  function getcookie(req: any) {
+    try {
+      var cookie = req.headers.cookie;
+      // user=someone; session=QyhYzXhkTZawIb5qSl3KKyPVN (this is my cookie i get)
+      console.log("Cookie:");
+      return cookie.split("; ");
+    } catch {
+      console.log("Error fetching cookie from header.");
+    }
   }
-}
 
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`); //not adam literally copying this mn doc dial express, "Example app"
+  server.listen(port, () => {
+    console.log(`Example server listening at http://localhost:${port}`); //not adam literally copying this mn doc dial express, "Example server"
+  });
+
+  //this bracket closes the app.prepare, which envelops the entire code here
 });
