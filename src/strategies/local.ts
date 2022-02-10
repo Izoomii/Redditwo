@@ -20,7 +20,7 @@ const localStrat = () => {
             },
           });
           if (!user) {
-            console.log("No user");
+            console.log("No user with this nickname");
             return done(null, false, { message: "No such user." });
           } else {
             let verify = argonfuncs.default.passVerify(user.password, password);

@@ -30,8 +30,10 @@ authRouter.get("/login", (req, res, next) => {
 authRouter.post("/login", (req, res, next) => {
   //console.log(authenticate);
   return authenticate("local", {
-    successRedirect: "/",
-    //failureRedirect: "/auth",
+    //originally the redirects used to take user to backend port, changed to :3000 for front end
+    successRedirect: "http://localhost:3000/main",
+    //temp failsafe for failed logins.
+    // failureRedirect: "http://localhost:3000/account",
   })(req, res, next);
 });
 

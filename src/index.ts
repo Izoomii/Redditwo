@@ -9,7 +9,8 @@ import userRouter from "./modules/users";
 import subredditRouter from "./modules/subreddits";
 import localStrat from "./strategies/local";
 import serialization from "./strategies/serialization";
-const port = 3000;
+
+const port = 8080;
 const prisma = new PrismaClient();
 
 const server = express();
@@ -47,9 +48,9 @@ server.get("/test", async (req, res) => {
 });
 
 //app.prepare().then(() => {
-server.all("*", (req, res) => {
-  console.log("ass");
-});
+// server.all("*", (req, res) => {
+//   console.log("server all '*' req triggered.");
+// });
 server.listen(port, () => {
   console.log(`Example server listening at http://localhost:${port}`); //not adam literally copying this mn doc dial express, "Example server"
 });
