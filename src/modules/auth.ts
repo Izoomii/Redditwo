@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { authenticate } from "passport";
-import { User } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 
+const prisma = new PrismaClient();
 const authRouter = Router();
 
 //old version of the code that doesn't work but im keeping for future reference
@@ -11,6 +12,19 @@ const authRouter = Router();
 //   // `req.user` contains the authenticated user.
 //   res.send(200);
 // });
+
+authRouter.get("/:user", async (req, res) => {
+  const user = await prisma.user.findUnique({
+    where: {
+      nickname: req.params.user,
+    },
+  });
+  if (user) {
+    res.json({ nickname: user.nickname });
+  } else {
+    res.json({ nickname: null });
+  }
+});
 
 authRouter.get("/login", (req, res, next) => {
   //res.render("login.pug");
