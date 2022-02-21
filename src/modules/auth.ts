@@ -43,12 +43,31 @@ authRouter.get("/login", (req, res, next) => {
 
 authRouter.post("/login", (req, res, next) => {
   //console.log(authenticate);
-  return authenticate("local", {
-    //originally the redirects used to take user to backend port, changed to :3000 for front end
-    successRedirect: "http://localhost:3000/main",
-    //temp failsafe for failed logins.
-    // failureRedirect: "http://localhost:3000/account",
+  authenticate("local", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      res.json(info); //info contains the error message
+      //res.redirect("http://localhost:3000/account");
+    } else {
+      // if user authenticated maintain the session
+      req.logIn(user, function () {
+        // do whatever here on successful login
+        res.redirect("http://localhost:3000/main");
+      });
+    }
   })(req, res, next);
 });
+
+/*
+//copied this from passportjs docs
+
+app.post('/login/password',
+  passport.authenticate('local', { failureRedirect: '/login', failureMessage: true }),
+  function(req, res) {
+    res.redirect('/~' + req.user.username);
+  });
+*/
 
 export = authRouter;

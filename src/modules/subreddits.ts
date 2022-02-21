@@ -53,6 +53,7 @@ subredditRouter.get(`/r/:subreddit`, async (req, res) => {
 //doesnt work anymore? "words" is undefined when console logging it
 subredditRouter.get("/searchposts", async (req, res) => {
   const keyWord = req.body as searchWords;
+  //probably this has an empty req.body too
   console.log(keyWord.words);
   const results = await prisma.post.findMany({
     where: {
@@ -67,22 +68,31 @@ subredditRouter.get("/searchposts", async (req, res) => {
 //creates a new post for a user
 subredditRouter.post("/createpost", async (req, res) => {
   const body = req.body as Post;
-  if (!req.user) {
-    res.send("Please connect first to be able to make posts");
-    console.log("Cannot create a post without being logged in");
+
+  const user = await prisma.user.findUnique({
+    where: {
+      nickname: body.authorName,
+    },
+  });
+
+  if (!user) {
+    console.log("Invalid user");
+    res.json({ message: "Invalid user" });
   } else {
-    let connectedUser = req.user as User;
+    // console.log("Post gets created here.");
     await prisma.post.create({
       data: {
         sub: body.sub,
         title: body.title,
         content: body.content,
-        authorName: connectedUser.nickname,
+        authorName: body.authorName,
       },
     });
-    res.send(`Post created in ${body.sub}!\n Title: ${body.title}`);
-    console.log(`Post created in sub ${body.sub} with title "${body.title}"`);
+    res.json({
+      message: `Post created! Title: ${body.title}, made by ${body.authorName}`,
+    });
   }
+  // console.log(`Post created in sub ${body.sub} with title "${body.title}"`);
 });
 
 export = subredditRouter;

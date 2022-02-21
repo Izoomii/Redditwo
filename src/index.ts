@@ -1,7 +1,6 @@
-const dev = process.env.NODE_ENV !== "production";
+// const dev = process.env.NODE_ENV !== "production";
 
 import express from "express";
-import { PrismaClient } from "@prisma/client";
 import session from "express-session";
 import passport from "passport";
 import authRouter from "./modules/auth";
@@ -11,18 +10,21 @@ import localStrat from "./strategies/local";
 import serialization from "./strategies/serialization";
 
 const port = 8080;
-const prisma = new PrismaClient();
 
 const server = express();
 server.use(express.urlencoded({ extended: true }));
 server.use(
   session({
     secret: "some secret",
-    cookie: { maxAge: 30000 }, //how long the cookie stays
+    cookie: { maxAge: 60000 }, //how long the cookie stays
     resave: true,
     saveUninitialized: false,
   })
 );
+
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
+
 //refers to the function that handles local strategy logic in local.ts and the one that serializes/deserializes user respectively
 localStrat();
 serialization();
