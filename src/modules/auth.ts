@@ -1,8 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "passport";
-import { PrismaClient, User } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../libs/prisma";
 const authRouter = Router();
 
 //old version of the code that doesn't work but im keeping for future reference

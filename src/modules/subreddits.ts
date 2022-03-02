@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { PrismaClient, Post, User } from "@prisma/client";
+import { Post } from "@prisma/client";
 
-const prisma = new PrismaClient();
+import prisma from "../libs/prisma";
 
 const subredditRouter = Router();
 
@@ -51,18 +51,20 @@ subredditRouter.get(`/r/:subreddit`, async (req, res) => {
 
 //searches all posts in database for a specific keyword(s)
 //doesnt work anymore? "words" is undefined when console logging it
-subredditRouter.get("/searchposts", async (req, res) => {
+subredditRouter.post("/searchposts", async (req, res) => {
   const keyWord = req.body as searchWords;
   //probably this has an empty req.body too
   console.log(keyWord.words);
   const results = await prisma.post.findMany({
     where: {
-      content: {
-        contains: keyWord.words,
-      },
+      OR: [
+        { title: { contains: keyWord.words } },
+        { content: { contains: keyWord.words } },
+      ],
     },
   });
-  res.json(results);
+  console.log(results);
+  res.json({ results });
 });
 
 //creates a new post for a user

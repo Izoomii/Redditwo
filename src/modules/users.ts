@@ -1,8 +1,8 @@
 import { Router } from "express";
-import { PrismaClient, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import * as argonfuncs from "../modules/authfuncs";
 
-const prisma = new PrismaClient();
+import prisma from "../libs/prisma";
 
 const userRouter = Router();
 
