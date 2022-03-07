@@ -1,6 +1,9 @@
 import { Router } from "express";
 import { authenticate } from "passport";
 import prisma from "../libs/prisma";
+
+import { frontPort } from "../frontPort";
+
 const authRouter = Router();
 
 //old version of the code that doesn't work but im keeping for future reference
@@ -52,7 +55,7 @@ authRouter.post("/login", (req, res, next) => {
       // if user authenticated maintain the session
       req.logIn(user, function () {
         // do whatever here on successful login
-        res.redirect("http://localhost:3000/main");
+        res.redirect(`http://localhost:${frontPort}/main`);
       });
     }
   })(req, res, next);

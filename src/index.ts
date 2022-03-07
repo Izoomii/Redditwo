@@ -6,6 +6,7 @@ import passport from "passport";
 import authRouter from "./modules/auth";
 import userRouter from "./modules/users";
 import subredditRouter from "./modules/subreddits";
+import postRouter from "./modules/posts";
 import localStrat from "./strategies/local";
 import serialization from "./strategies/serialization";
 
@@ -33,6 +34,7 @@ server.use(passport.initialize());
 server.use(passport.session());
 
 server.use("/auth", authRouter);
+server.use("/posts", postRouter);
 server.use(userRouter);
 server.use(subredditRouter);
 
