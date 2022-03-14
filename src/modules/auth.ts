@@ -43,19 +43,19 @@ authRouter.get("/login", (req, res, next) => {
 });
 
 authRouter.post("/login", (req, res, next) => {
-  //console.log(authenticate);
   authenticate("local", (err, user, info) => {
     if (err) {
       return next(err);
     }
     if (!user) {
-      res.json(info); //info contains the error message
-      //res.redirect("http://localhost:3000/account");
+      // console.log(info); //info contains the error message
+      res.json({ authenticate: false, message: info.message });
     } else {
       // if user authenticated maintain the session
       req.logIn(user, function () {
         // do whatever here on successful login
-        res.redirect(`http://localhost:${frontPort}/main`);
+        console.log(user);
+        res.json({ authenticate: true, message: info.message });
       });
     }
   })(req, res, next);

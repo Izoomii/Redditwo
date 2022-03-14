@@ -7,14 +7,18 @@ import prisma from "../libs/prisma";
 const userRouter = Router();
 
 //finds all users registered
-userRouter.get("/users", async (_, res) => {
-  const users = await prisma.user.findMany();
+userRouter.get("/", async (_, res) => {
+  const users = await prisma.user.findMany({
+    select: {
+      nickname: true,
+    },
+  });
   res.json(users);
   console.log("Searched for all users");
 });
 
 //finds all posts of a user
-userRouter.get(`/u/:user`, async (req, res) => {
+userRouter.get(`/:user`, async (req, res) => {
   const user = req.params.user;
   const allUserPosts = await prisma.post.findMany({
     where: {
@@ -72,7 +76,7 @@ userRouter.post("/createuser", async (req, res) => {
 });
 
 //deletes user
-userRouter.delete("/u/:name", async (req, res) => {
+userRouter.delete("/delete/:name", async (req, res) => {
   const userName = req.params.name;
   const user = await prisma.user.delete({
     where: {

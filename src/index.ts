@@ -23,8 +23,9 @@ server.use(
   })
 );
 
+//two of the same thing
+// server.use(express.urlencoded({ extended: true }));
 server.use(express.json());
-server.use(express.urlencoded({ extended: true }));
 
 //refers to the function that handles local strategy logic in local.ts and the one that serializes/deserializes user respectively
 localStrat();
@@ -35,8 +36,8 @@ server.use(passport.session());
 
 server.use("/auth", authRouter);
 server.use("/posts", postRouter);
-server.use(userRouter);
-server.use(subredditRouter);
+server.use("/users", userRouter);
+server.use("/subs", subredditRouter);
 
 server.all("/", (_, res) => {
   res.redirect("/main");

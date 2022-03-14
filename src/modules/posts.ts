@@ -3,14 +3,24 @@ import prisma from "../libs/prisma";
 
 const postRouter = Router();
 
-postRouter.get("/", async (req, res) => {
+postRouter.get("/", async (_, res) => {
   const results = await prisma.post.findMany({
     select: {
       id: true,
     },
   });
-  console.log(results);
+  // console.log(results);
   res.json(results);
+});
+
+postRouter.get("/all", async (_, res) => {
+  const posts = await prisma.post.findMany({
+    take: 20,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  res.send(posts);
 });
 
 postRouter.get("/:id", async (req, res) => {

@@ -26,7 +26,7 @@ const localStrat = () => {
             let verify = argonfuncs.default.passVerify(user.password, password);
             if ((await verify) == true) {
               console.log(`Connected ${user.nickname}`);
-              return done(null, user);
+              return done(null, user, { message: "Authenticated" });
             } else {
               console.log("Wrong password");
               return done(null, false, { message: "Wrong password." });

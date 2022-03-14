@@ -9,21 +9,37 @@ interface searchWords {
   words: string;
 }
 
-subredditRouter.get("/main", async (req, res) => {
+subredditRouter.get("/", async (_, res) => {
   //console.log(req.session);
-  const posts = await prisma.post.findMany({
-    take: 10,
-    orderBy: {
-      createdAt: "desc",
+  const results = await prisma.post.findMany({
+    select: {
+      sub: true,
     },
   });
-  res.send(posts);
-  let cookie = getcookie(req);
-  if (cookie == undefined) {
-    console.log("No cookie created yet.");
-  } else {
-    console.log(cookie);
-  }
+  //filters and removes duplicates
+  const subs = [
+    ...new Set(
+      results.map((e) => {
+        return e.sub;
+      })
+    ),
+  ];
+  //just think it is better to send it the way it was fetched by prisma for the sake of consistency
+  res.json(
+    subs.map((e) => {
+      return { sub: e };
+    })
+  );
+});
+
+subredditRouter.get("/:sub", async (req, res) => {
+  const sub = req.params.sub;
+  const results = await prisma.post.findMany({
+    where: {
+      sub: sub,
+    },
+  });
+  res.json(results);
 });
 
 function getcookie(req: any) {
