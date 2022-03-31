@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authenticate } from "passport";
 import prisma from "../libs/prisma";
 
-import { frontPort } from "../frontPort";
+import { frontPort } from "../libs/globalVars";
 
 const authRouter = Router();
 
