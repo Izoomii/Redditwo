@@ -34,7 +34,7 @@ postRouter.get("/:id", async (req, res) => {
     console.log("Get request with invalid id.");
     res.json({ message: "No post with that id." });
   } else {
-    console.log("Sent res to get request of a redditwo post");
+    console.log(`Responded to GET request of a post [id: ${post.id}]`);
     res.json({ post: post });
   }
 });

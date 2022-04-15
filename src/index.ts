@@ -10,8 +10,9 @@ import subredditRouter from "./modules/subreddits";
 import postRouter from "./modules/posts";
 import localStrat from "./strategies/local";
 import serialization from "./strategies/serialization";
-import { frontPort, getcookie } from "./libs/globalVars";
+import { frontPort } from "./libs/globalVars";
 import testRouter from "./modules/test";
+import searchRouter from "./modules/search";
 
 const port = 8080;
 
@@ -19,7 +20,7 @@ const server = express();
 server.use(
   session({
     secret: "some secret",
-    cookie: { maxAge: 60000, sameSite: false, secure: false },
+    cookie: { /*maxAge: 60000, */ sameSite: false, secure: false }, //change later CHNL
     resave: true,
     saveUninitialized: false,
   })
@@ -46,6 +47,7 @@ server.use("/posts", postRouter);
 server.use("/users", userRouter);
 server.use("/subs", subredditRouter);
 server.use("/test", testRouter);
+server.use("/search", searchRouter);
 
 server.all("/", (_, res) => {
   //temporary redirect until i give main page its own router or smtg

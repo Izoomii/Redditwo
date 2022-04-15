@@ -21,4 +21,5 @@ const passVerify = async (hashedPassword: string, password: string) => {
   }
 };
 
+//these functions are pretty fucking useless ngl, can just use the original argon funcs, CHNL
 export default { hashArgon2, passVerify };

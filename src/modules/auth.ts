@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { authenticate } from "passport";
 import prisma from "../libs/prisma";
-
 import { frontPort } from "../libs/globalVars";
+import { User } from "@prisma/client";
+import { hash, verify } from "argon2";
 
 const authRouter = Router();
 
@@ -70,5 +71,37 @@ app.post('/login/password',
     res.redirect('/~' + req.user.username);
   });
 */
+
+interface passwordChangeRequest {
+  original: string;
+  new: string;
+  repeat: string;
+}
+
+authRouter.post("/passwordchange", async (req, res) => {
+  const user = req.user as User;
+  if (!user)
+    return res.json({
+      message: "Cannot change password without being logged in.",
+    });
+  const passwords = req.body as passwordChangeRequest;
+  console.log(passwords);
+  const existingUser = await prisma.user.findUnique({
+    where: {
+      nickname: user.nickname,
+    },
+  });
+  if (await verify(existingUser.password, passwords.original)) {
+    console.log("Original password correct");
+    if (passwords.new === passwords.repeat && passwords.new !== "") {
+      console.log("Repeated password matches too.\nOriginal password changed.");
+    } else {
+      console.log("Repeated password doesn't match");
+    }
+  } else {
+    console.log("Original password doesn't match.");
+  }
+  res.json({ message: "Processing done. Check console." });
+});
 
 export = authRouter;
