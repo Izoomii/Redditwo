@@ -36,8 +36,10 @@
     "tailwindcss": "^2.2.19",
     "ts-node-dev": "1.1.8",
     "typescript": "4.3.5"
+    
   },
   "devDependencies": {
     "@types/cors": "^2.8.12"
   }
 }
+

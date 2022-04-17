@@ -1,10 +1,10 @@
 //handles local strategy logic with auth.ts
 import { Strategy } from "passport-local";
 import passport from "passport";
-import { PrismaClient, User } from "@prisma/client";
 import * as argonfuncs from "../modules/authfuncs";
 
-const prisma = new PrismaClient();
+import prisma from "../libs/prisma";
+
 const localStrat = () => {
   passport.use(
     new Strategy(

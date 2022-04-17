@@ -10,8 +10,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-
-
 // model Profile {
 //   id     Int     @id @default(autoincrement())
 //   bio    String?
@@ -27,31 +25,48 @@ generator client {
 //   profile Profile?
 // }
 
-
 model User {
-  //id      Int     @id @default(autoincrement())
-  email     String  @unique
-  nickname  String  @unique
-  password  String
-  name      String?
-  post      Post[]
+  id       String  @id @default(cuid())
+  email    String  @unique
+  nickname String  @unique
+  password String
+  name     String?
+  post     Post[]
+  Vote     Vote[]
 }
+
 //is it better to have an array with all saved post IDs or link them with the post db table somehow??
 
 model Post {
-  id          Int       @id @default(autoincrement())
-  sub         String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  title       String    @db.VarChar(255)
-  content     String?
-  published   Boolean   @default(false)
-  author      User      @relation(fields: [authorName], references: [nickname])
-  authorName  String    // relation scalar field  (used in the `@relation` attribute above)
-  
+  id         String   @id @default(cuid())
+  sub        String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  title      String   @db.VarChar(255)
+  content    String?
+  published  Boolean  @default(false)
+  author     User     @relation(fields: [authorName], references: [nickname])
+  authorName String // relation scalar field  (used in the `@relation` attribute above)
+
+  Vote Vote[]
 }
 
+model Vote {
+  user         User      @relation(fields: [userNickname], references: [nickname])
+  userNickname String
+  post         Post      @relation(fields: [postId], references: [id])
+  postId       String
+  voteType     VoteType?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
+  @@id([userNickname, postId])
+}
+
+enum VoteType {
+  UP
+  DOWN
+}
 
 //User => Post
 //  post cannnot exist without user

@@ -1,8 +1,10 @@
-#### UPDATES HAVE BEEN DISABLED ON PACKAGES IN PACKAGE JSON
+#### UPDATES ARE DISABLED FOR typescript and ts-node-dev PACKAGES
 
-### all users in db right now have their passwords set to their nickname + "thebest" on lowercase, except for Obito, who has a capital O on his nickname in the password
 
-## Pug files are in the project but unused, will delete after Nextjs is set up and working
+### passwords are either:
+  - username + "thebest"
+  - username(lowercase) + "thebest"
+  - username(Capital letter) + "thebest123#"
 
 
 ## TODO:
@@ -25,6 +27,12 @@
 > undefined when searching for posts
 
 
+
+
+
+## intentional error
+// let n: any = 1;
+// n.replace("-", "");
 
 
 

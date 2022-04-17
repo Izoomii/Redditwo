@@ -92,16 +92,31 @@ authRouter.post("/passwordchange", async (req, res) => {
     },
   });
   if (await verify(existingUser.password, passwords.original)) {
-    console.log("Original password correct");
+    // console.log("Original password correct");
     if (passwords.new === passwords.repeat && passwords.new !== "") {
-      console.log("Repeated password matches too.\nOriginal password changed.");
+      try {
+        await prisma.user.update({
+          where: {
+            nickname: user.nickname,
+          },
+          data: {
+            password: await hash(passwords.new),
+          },
+        });
+        console.log(`Password of user "${user.nickname}" changed.`);
+        req.logOut();
+        res.json({ passwordChanged: true });
+      } catch {
+        res.json({
+          passwordChanged: false,
+        });
+      }
     } else {
-      console.log("Repeated password doesn't match");
+      // console.log("Repeated password doesn't match");
     }
   } else {
-    console.log("Original password doesn't match.");
+    // console.log("Original password doesn't match.");
   }
-  res.json({ message: "Processing done. Check console." });
 });
 
 export = authRouter;
