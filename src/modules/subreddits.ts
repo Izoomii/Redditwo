@@ -57,6 +57,7 @@ subredditRouter.get("/:sub", async (req, res) => {
 
 //searches all posts in database for a specific keyword(s)
 //doesnt work anymore? "words" is undefined when console logging it
+//CHNL
 subredditRouter.post("/searchposts", async (req, res) => {
   const keyWord = req.body as searchWords;
   //probably this has an empty req.body too
@@ -75,7 +76,7 @@ subredditRouter.post("/searchposts", async (req, res) => {
 
 //creates a new post for a user
 subredditRouter.post("/createpost", async (req, res) => {
-  const body = req.body as any;
+  const body = req.body as any; //CHNL
   const user = req.user as User;
 
   if (!user) {

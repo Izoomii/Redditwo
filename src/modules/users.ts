@@ -20,8 +20,9 @@ userRouter.get("/all", async (_, res) => {
 //finds all posts of a user
 userRouter.get(`/`, async (req, res) => {
   const user = req.query.user as string;
+  //CHNL
   if (user === undefined || user === "") {
-    return res.status(404).send("No user defined");
+    return res.status(404).send("No user defined"); // ?? bro fix this spaghetti code
   }
   const allUserPosts = await prisma.post.findMany({
     where: {
@@ -31,7 +32,7 @@ userRouter.get(`/`, async (req, res) => {
   res.json(allUserPosts);
   console.log(`Searched posts of user ${user}`);
   if (req.user) {
-    let connectedUser = req.user as User;
+    const connectedUser = req.user as User;
     if (connectedUser.nickname == user) {
       console.log(connectedUser.nickname + " It's you!");
     }

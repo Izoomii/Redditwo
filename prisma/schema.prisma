@@ -32,7 +32,7 @@ model User {
   password String
   name     String?
   post     Post[]
-  Vote     Vote[]
+  vote     Vote[]
 }
 
 //is it better to have an array with all saved post IDs or link them with the post db table somehow??
@@ -47,8 +47,7 @@ model Post {
   published  Boolean  @default(false)
   author     User     @relation(fields: [authorName], references: [nickname])
   authorName String // relation scalar field  (used in the `@relation` attribute above)
-
-  Vote Vote[]
+  vote       Vote[]
 }
 
 model Vote {

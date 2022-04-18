@@ -1,7 +1,9 @@
+import { Request } from "express";
+
 //front end port
 export const frontPort = 3000;
 
-export const getcookie = (req: any) => {
+export const getcookie = (req: Request) => {
   try {
     const cookie = req.headers.cookie;
     // user=someone; session=QyhYzXhkTZawIb5qSl3KKyPVN (this is my cookie i get)

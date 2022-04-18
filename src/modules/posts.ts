@@ -2,6 +2,7 @@ import { User, VoteType } from "@prisma/client";
 import { Router } from "express";
 import { isAuthentified } from "../libs/middleware/auth";
 import prisma from "../libs/prisma";
+import { post } from "./auth";
 
 const postRouter = Router();
 
@@ -40,6 +41,31 @@ postRouter.get("/:id", async (req, res) => {
   res.json({ post: post });
 });
 
+//this feels janky, IMPL
+postRouter.get("/:id/votecount", async (req, res) => {
+  const id = req.params.id;
+  const upvotes = await prisma.vote.aggregate({
+    where: {
+      postId: id,
+      voteType: "UP",
+    },
+    _count: true,
+  });
+  const downvotes = await prisma.vote.aggregate({
+    where: {
+      postId: id,
+      voteType: "DOWN",
+    },
+    _count: true,
+  });
+  res.json({
+    upvotes: upvotes._count,
+    downvotes: downvotes._count,
+    total: upvotes._count - downvotes._count,
+  });
+});
+
+//IMPL this feels like it can be improved a lot more
 postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
   const id = req.params.id;
   const user = req.user as User;
