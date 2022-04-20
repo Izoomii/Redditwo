@@ -3,6 +3,9 @@ import { Request } from "express";
 //front end port
 export const frontPort = 3000;
 
+export const avatarPath =
+  "/home/izumi/Documents/Redditwo/frontend/public/assets/avatars";
+
 export const getcookie = (req: Request) => {
   try {
     const cookie = req.headers.cookie;

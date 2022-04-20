@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { authenticate } from "passport";
 import prisma from "../libs/prisma";
-import { frontPort } from "../libs/globalVars";
 import { User } from "@prisma/client";
 import { hash, verify } from "argon2";
+import { isAuthentified } from "../libs/middleware/auth";
 
 const authRouter = Router();
 
@@ -78,12 +78,8 @@ interface passwordChangeRequest {
   repeat: string;
 }
 
-authRouter.post("/passwordchange", async (req, res) => {
+authRouter.post("/passwordchange", isAuthentified, async (req, res) => {
   const user = req.user as User;
-  if (!user)
-    return res.json({
-      message: "Cannot change password without being logged in.",
-    });
   const passwords = req.body as passwordChangeRequest;
   console.log(passwords);
   const existingUser = await prisma.user.findUnique({

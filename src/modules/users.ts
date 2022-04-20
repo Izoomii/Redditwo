@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { User } from "@prisma/client";
-import * as argonfuncs from "../modules/authfuncs";
-
 import prisma from "../libs/prisma";
 
 const userRouter = Router();
@@ -19,21 +17,27 @@ userRouter.get("/all", async (_, res) => {
 
 //finds all posts of a user
 userRouter.get(`/`, async (req, res) => {
-  const user = req.query.user as string;
+  const nickname = req.query.nickname as string;
   //CHNL
-  if (user === undefined || user === "") {
-    return res.status(404).send("No user defined"); // ?? bro fix this spaghetti code
+  if (nickname === undefined || nickname === "") {
+    return res.status(400).send("No user defined"); // ?? bro fix this spaghetti code
   }
-  const allUserPosts = await prisma.post.findMany({
+  const userInfo = await prisma.user.findUnique({
     where: {
-      authorName: user,
+      nickname,
+    },
+    select: {
+      avatar: true,
+      nickname: true,
+      name: true,
+      posts: true,
     },
   });
-  res.json(allUserPosts);
-  console.log(`Searched posts of user ${user}`);
+  res.json(userInfo);
+  console.log(`Searched posts of user ${nickname}`);
   if (req.user) {
     const connectedUser = req.user as User;
-    if (connectedUser.nickname == user) {
+    if (connectedUser.nickname == nickname) {
       console.log(connectedUser.nickname + " It's you!");
     }
   }
@@ -45,9 +49,46 @@ userRouter.get(`/`, async (req, res) => {
 userRouter.get("/verifyme", async (req, res) => {
   const user = req.user as User;
   if (!user) {
-    res.send({ user: null });
+    res.json({ user: null });
   } else {
-    res.json({ user: user.nickname });
+    res.json({ user });
+  }
+});
+
+userRouter.post("/logout", async (req, res) => {
+  req.logOut();
+  res.json({ authenticate: false, message: "Logged out" });
+});
+
+interface updateInfo {
+  email?: string;
+  nickname?: string;
+  name?: string;
+}
+
+userRouter.post("/update", async (req, res) => {
+  //debating whether it's worth it to add code just to not update all sections at the same time if it doesn't cost much
+  const updatedInfo = req.body as updateInfo;
+  const user = req.user as User;
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: updatedInfo,
+    });
+
+    req.logIn(updatedUser, (err) => {
+      // if (!err) console.log("Successfully updated user", updatedUser);
+    });
+    res.json({ updated: true, updatedUser });
+    res.end();
+  } catch {
+    res.json({
+      message:
+        "[IMPL] An error has occured. (could be multiple types of errors)",
+    });
   }
 });
 
@@ -69,7 +110,7 @@ userRouter.get("/verifyme", async (req, res) => {
 //         data: {
 //           email: body.email,
 //           nickname: body.nickname,
-//           password: await argonfuncs.default.hashArgon2(body.password),
+//           password: await argonfuncs.default.hashArgon2(body.password), //use original argon funcs, these ones are useless
 //         },
 //       });
 //       console.log("Profile created!");

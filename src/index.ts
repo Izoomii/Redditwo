@@ -46,11 +46,13 @@ server.use("/auth", authRouter);
 server.use("/posts", postRouter);
 server.use("/users", userRouter);
 server.use("/subs", subredditRouter);
-server.use("/test", testRouter);
 server.use("/search", searchRouter);
 
+//test router
+server.use("/test", testRouter);
+
 server.all("/", (_, res) => {
-  //temporary redirect until i give main page its own router or smtg
+  //temporary redirect until i give main page its own router or smtg, CHNL
   res.redirect("/posts/all");
 });
 

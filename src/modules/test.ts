@@ -1,20 +1,30 @@
 import { Router } from "express";
-
 const testRouter = Router();
 
-testRouter.get("/get", async (req, res) => {
-  console.log("got a get request in test page");
-  console.log(req.query);
-  //   res.send(req.session);
+import multer from "multer";
+const destination = __dirname + "/testUploads";
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, destination);
+  },
+  filename: (req, file, cb) => {
+    console.log(file);
+    cb(null, "uploaded " + file.originalname);
+  },
 });
 
-testRouter.get("/get/whatever", async (req, res) => {
-  res.json(req.query);
+const upload = multer({ storage: storage }).single("imagetest");
+
+testRouter.post("/post/image", upload, async (req, res) => {
+  upload(req, res, (err) => {
+    if (err) console.log(err);
+  });
+  res.json({ message: "Image uploaded?", uploadFolder: destination });
 });
 
-testRouter.post("/post", async (req, res) => {
-  const result = req.body;
-  res.json({ thing: result });
+testRouter.post("/post/lookback", (req, res) => {
+  res.json(req.body);
 });
 
 export = testRouter;
