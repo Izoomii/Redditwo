@@ -1,74 +1,49 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider = "prisma-client-js"
+}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
-}
-
-// model Profile {
-//   id     Int     @id @default(autoincrement())
-//   bio    String?
-//   user   User    @relation(fields: [userId], references: [id])
-//   userId Int     @unique
-// }
-
-// model User {
-//   id      Int      @id @default(autoincrement())
-//   email   String   @unique
-//   name    String?
-//   posts   Post[]
-//   profile Profile?
-// }
-
 model User {
   id       String  @id @default(cuid())
-  email    String  @unique
-  nickname String  @unique
+  email    String  @unique @db.Citext
+  nickname String  @unique @db.Citext
+  name     String?
   password String
   avatar   String?
-  name     String?
   posts    Post[]
-  vote     Vote[]
+  Vote     Vote[]
 }
-
-//is it better to have an array with all saved post IDs or link them with the post db table somehow??
 
 model Post {
   id         String   @id @default(cuid())
-  sub        String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
   title      String   @db.VarChar(255)
   content    String?
+  sub        String
   published  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   author     User     @relation(fields: [authorName], references: [nickname])
-  authorName String // relation scalar field  (used in the `@relation` attribute above)
+  authorName String   @db.Citext
   vote       Vote[]
 }
 
-// maybe integrate saving into Vote and rename it to "Interactions" ??
 model Vote {
-  user         User      @relation(fields: [userNickname], references: [nickname])
-  userNickname String
-  post         Post      @relation(fields: [postId], references: [id])
-  postId       String
-  voteType     VoteType?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  User      User      @relation(fields: [userId], references: [id])
+  userId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  postId    String
+  voteType  VoteType?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  @@id([userNickname, postId])
+  @@id([userId, postId])
 }
 
 enum VoteType {
   UP
   DOWN
 }
-
-//User => Post
-//  post cannnot exist without user
-//  need savedList where IDs of posts can be linked without being created with post

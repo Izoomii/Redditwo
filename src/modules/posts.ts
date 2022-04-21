@@ -78,8 +78,8 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
   if (!post) return res.json({ message: "Post doesn't exist." });
   const postVote = await prisma.vote.findUnique({
     where: {
-      userNickname_postId: {
-        userNickname: user.nickname,
+      userId_postId: {
+        userId: user.id,
         postId: id,
       },
     },
@@ -89,8 +89,8 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
     if (postVote.voteType === vote) {
       const result = await prisma.vote.update({
         where: {
-          userNickname_postId: {
-            userNickname: user.nickname,
+          userId_postId: {
+            userId: user.id,
             postId: id,
           },
         },
@@ -105,8 +105,8 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
     } else {
       const result = await prisma.vote.update({
         where: {
-          userNickname_postId: {
-            userNickname: user.nickname,
+          userId_postId: {
+            userId: user.id,
             postId: id,
           },
         },
@@ -122,7 +122,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
   } else {
     const newVote = await prisma.vote.create({
       data: {
-        userNickname: user.nickname,
+        userId: user.id,
         postId: post.id,
         voteType: vote,
       },

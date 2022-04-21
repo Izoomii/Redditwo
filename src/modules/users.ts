@@ -1,8 +1,23 @@
 import { Router } from "express";
 import { User } from "@prisma/client";
 import prisma from "../libs/prisma";
+import { hash } from "argon2";
+import multer from "multer";
 
 const userRouter = Router();
+
+const destination =
+  "/home/izumi/Documents/Redditwo/frontend/public/assets/avatars";
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, destination);
+  },
+  filename: (req, file, cb) => {
+    // console.log(file);
+    cb(null, Date.now() + file.originalname);
+  },
+});
 
 //finds all users registered
 userRouter.get("/all", async (_, res) => {
@@ -70,7 +85,6 @@ userRouter.post("/update", async (req, res) => {
   //debating whether it's worth it to add code just to not update all sections at the same time if it doesn't cost much
   const updatedInfo = req.body as updateInfo;
   const user = req.user as User;
-
   try {
     const updatedUser = await prisma.user.update({
       where: {
@@ -92,36 +106,64 @@ userRouter.post("/update", async (req, res) => {
   }
 });
 
+const upload = multer({ storage: storage });
+//update avatar
+userRouter.post(
+  "/updateavatar",
+  upload.single("avatar"),
+  // upload.fields([{ name: "newavatar" }]),
+  async (req, res) => {
+    const image = req.file;
+    const user = req.user as User;
+    console.log(req.body);
+    // res.json(image);
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        avatar: image.filename,
+      },
+    });
+    req.logIn(updatedUser, (err) => {
+      // if (!err) console.log("Successfully updated user", updatedUser);
+    });
+    res.json({ updated: true, updatedUser });
+    res.end();
+  }
+);
+
 //creates a user
-// userRouter.post("/createuser", async (req, res) => {
-//   const body = req.body as User;
-//   //console.log(body);
-//   if (req.body.password === req.body.repeatPassword) {
-//     const user = await prisma.user.findUnique({
-//       where: {
-//         nickname: body.nickname,
-//       },
-//     });
-//     if (user) {
-//       res.send("Sorry, that nickname is already taken, please try another one");
-//       console.log("Nickname already taken");
-//     } else {
-//       await prisma.user.create({
-//         data: {
-//           email: body.email,
-//           nickname: body.nickname,
-//           password: await argonfuncs.default.hashArgon2(body.password), //use original argon funcs, these ones are useless
-//         },
-//       });
-//       console.log("Profile created!");
-//       console.log(body);
-//       res.send("Profile created!");
-//     }
-//   } else {
-//     console.log("Passwords don't match.");
-//     res.send("Passwords do not match, please try again.");
-//   }
-// });
+userRouter.post("/createuser", async (req, res) => {
+  const body = req.body;
+  //console.log(body);
+  if (req.body.password === req.body.repeatPassword) {
+    const user = await prisma.user.findUnique({
+      where: {
+        nickname: body.nickname,
+      },
+    });
+    if (user) {
+      res.send("Sorry, that nickname is already taken, please try another one");
+      console.log("Nickname already taken");
+    } else {
+      await prisma.user.create({
+        data: {
+          email: body.email,
+          nickname: body.nickname,
+          password: await hash(body.password), //use original argon funcs, these ones are useless
+        },
+      });
+      console.log("Profile created!");
+      console.log(body);
+      res.send("Profile created!");
+    }
+  } else {
+    console.log("Passwords don't match.");
+    res.send("Passwords do not match, please try again.");
+  }
+});
 
 //deletes user
 // userRouter.delete("/delete/:name", async (req, res) => {
