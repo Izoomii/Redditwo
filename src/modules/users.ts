@@ -134,19 +134,37 @@ userRouter.post(
   }
 );
 
+interface createUserBody {
+  nickname: string;
+  email: string;
+  password: string;
+  name?: string;
+}
+
 //creates a user
 userRouter.post("/createuser", async (req, res) => {
-  const body = req.body;
+  const body = req.body as createUserBody;
   //console.log(body);
   if (req.body.password === req.body.repeatPassword) {
-    const user = await prisma.user.findUnique({
+    const existingUsers = await prisma.user.findMany({
       where: {
-        nickname: body.nickname,
+        OR: [
+          {
+            nickname: body.nickname,
+          },
+          {
+            email: body.email,
+          },
+        ],
       },
     });
-    if (user) {
-      res.send("Sorry, that nickname is already taken, please try another one");
-      console.log("Nickname already taken");
+    if (existingUsers.length != 0) {
+      res.json({
+        message:
+          "[IMPL] Sorry, those credentials are already taken, please try another one",
+        users: existingUsers,
+      });
+      console.log("[IMPL] Credentials already taken");
     } else {
       await prisma.user.create({
         data: {
@@ -157,7 +175,7 @@ userRouter.post("/createuser", async (req, res) => {
       });
       console.log("Profile created!");
       console.log(body);
-      res.send("Profile created!");
+      res.json({ message: "Profile created!", user: body });
     }
   } else {
     console.log("Passwords don't match.");
