@@ -3,6 +3,7 @@ import { User } from "@prisma/client";
 import prisma from "../libs/prisma";
 import { hash } from "argon2";
 import multer from "multer";
+import { verifyPasswordStrength } from "../libs/globalVars";
 
 const userRouter = Router();
 
@@ -145,6 +146,9 @@ interface createUserBody {
 userRouter.post("/createuser", async (req, res) => {
   const body = req.body as createUserBody;
   //console.log(body);
+
+  if (!verifyPasswordStrength(body.password))
+    return res.json({ message: "Password requirements don't match" });
   if (req.body.password === req.body.repeatPassword) {
     const existingUsers = await prisma.user.findMany({
       where: {
@@ -161,20 +165,21 @@ userRouter.post("/createuser", async (req, res) => {
     if (existingUsers.length != 0) {
       res.json({
         message:
-          "[IMPL] Sorry, those credentials are already taken, please try another one",
+          "[IMPL] Sorry, those credentials are already taken, please try other ones",
         users: existingUsers,
       });
       console.log("[IMPL] Credentials already taken");
     } else {
-      await prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
           email: body.email,
           nickname: body.nickname,
-          password: await hash(body.password), //use original argon funcs, these ones are useless
+          password: await hash(body.password),
         },
       });
-      console.log("Profile created!");
-      console.log(body);
+      req.logIn(newUser, (err) => {
+        if (!err) console.log(`Logged in new user.`);
+      });
       res.json({ message: "Profile created!", user: body });
     }
   } else {
@@ -184,13 +189,15 @@ userRouter.post("/createuser", async (req, res) => {
 });
 
 //deletes user
-// userRouter.delete("/delete/:name", async (req, res) => {
-//   const userName = req.params.name;
-//   const user = await prisma.user.delete({
-//     where: {
-//       nickname: userName,
-//     },
-//   });
-// });
+userRouter.delete("/delete/:name", async (req, res) => {
+  const userName = req.params.name;
+  //check if user exists first
+  const user = await prisma.user.delete({
+    where: {
+      nickname: userName,
+    },
+  });
+  res.json({ message: `Deleted user "${user.nickname}" :(` });
+});
 
 export = userRouter;
