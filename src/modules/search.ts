@@ -13,7 +13,12 @@ searchRouter.get("/", async (req, res) => {
   if (query === "") return res.status(400);
   const results = await prisma.post.findMany({
     where: {
-      OR: [{ title: { contains: query } }, { content: { contains: query } }],
+      OR: [
+        { title: { contains: query } },
+        { authorName: { contains: query } },
+        { subName: { contains: query } },
+        { content: { contains: query } },
+      ],
     },
   });
 

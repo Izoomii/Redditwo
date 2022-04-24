@@ -179,12 +179,13 @@ userRouter.post("/createuser", async (req, res) => {
       });
       req.logIn(newUser, (err) => {
         if (!err) console.log(`Logged in new user.`);
+        console.log(newUser);
       });
       res.json({ message: "Profile created!", user: body });
     }
   } else {
     console.log("Passwords don't match.");
-    res.send("Passwords do not match, please try again.");
+    res.json({ message: "Passwords do not match, please try again." });
   }
 });
 

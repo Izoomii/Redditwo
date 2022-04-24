@@ -8,27 +8,45 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
-  email    String  @unique @db.Citext
-  nickname String  @unique @db.Citext
-  name     String?
-  password String
-  avatar   String?
-  posts    Post[]
-  Vote     Vote[]
+  id        String  @id @default(cuid())
+  email     String  @unique @db.Citext
+  nickname  String  @unique @db.Citext
+  password  String
+  name      String?
+  avatar    String?
+  posts     Post[]
+  votes     Vote[]
+  ownedSubs Sub[]
+
 }
 
 model Post {
   id         String   @id @default(cuid())
   title      String   @db.VarChar(255)
   content    String?
-  sub        String
+  sub        Sub      @relation(fields: [subName], references: [name])
+  subName    String   @db.Citext
   published  Boolean  @default(false)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   author     User?    @relation(fields: [authorName], references: [nickname], onDelete: SetNull) //user's posts cannot be deleted
   authorName String?  @db.Citext
-  vote       Vote[]
+  votes      Vote[]
+}
+
+model Sub {
+  id          String  @id @default(cuid())
+  owner       User    @relation(fields: [ownerName], references: [nickname], onDelete: SetNull)
+  ownerName   String  @db.Citext
+  name        String  @unique @db.Citext
+  description String?
+  posts       Post[]
+
+}
+
+enum VoteType {
+  UP
+  DOWN
 }
 
 model Vote {
@@ -41,9 +59,4 @@ model Vote {
   updatedAt DateTime  @updatedAt
 
   @@id([userId, postId])
-}
-
-enum VoteType {
-  UP
-  DOWN
 }

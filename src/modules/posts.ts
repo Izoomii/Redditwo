@@ -1,8 +1,7 @@
-import { User, VoteType } from "@prisma/client";
+import { Post, User, VoteType } from "@prisma/client";
 import { Router } from "express";
 import { isAuthentified } from "../libs/middleware/auth";
 import prisma from "../libs/prisma";
-import { post } from "./auth";
 
 const postRouter = Router();
 
@@ -132,6 +131,38 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
       vote: newVote.voteType,
     });
   }
+});
+
+//creates a new post for a user
+postRouter.post("/createpost", isAuthentified, async (req, res) => {
+  const body = req.body as Post;
+  const user = req.user as User;
+  // console.log("Post gets created here.", user);
+  const sub = await prisma.sub.findUnique({
+    where: {
+      name: body.subName,
+    },
+  });
+  if (!sub) return res.json({ message: "Sub doesn't exist" });
+  const post = await prisma.post.create({
+    data: {
+      subName: body.subName,
+      title: body.title,
+      content: body.content,
+      authorName: user.nickname,
+    },
+  });
+  const newVote = await prisma.vote.create({
+    data: {
+      userId: user.id,
+      postId: post.id,
+      voteType: "UP",
+    },
+  });
+  res.json({
+    message: `Post created! Title: ${post.title}, made by ${user.nickname}`,
+  });
+  // console.log(`Post created in sub ${body.subName} with title "${body.title}"`);
 });
 
 export = postRouter;
