@@ -4,7 +4,7 @@ import prisma from "../libs/prisma";
 
 const mainRouter = Router();
 
-mainRouter.all("/", async (req, res) => {
+mainRouter.get("/", async (req, res) => {
   const user = req.user as User;
   if (!user) return res.redirect("/posts/all");
 
