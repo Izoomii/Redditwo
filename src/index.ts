@@ -10,9 +10,10 @@ import subredditRouter from "./modules/subreddits";
 import postRouter from "./modules/posts";
 import localStrat from "./strategies/local";
 import serialization from "./strategies/serialization";
-import { frontPort } from "./libs/globalVars";
+import { frontURL } from "./libs/globalVars";
 import testRouter from "./modules/test";
 import searchRouter from "./modules/search";
+import mainRouter from "./modules/mainRouter";
 
 const port = 8080;
 
@@ -27,7 +28,7 @@ server.use(
 );
 
 const corsParams = {
-  origin: `http://localhost:${frontPort}`,
+  origin: frontURL,
   credentials: true,
 };
 server.use(cors(corsParams));
@@ -42,6 +43,7 @@ serialization();
 server.use(passport.initialize());
 server.use(passport.session());
 
+server.use(mainRouter);
 server.use("/auth", authRouter);
 server.use("/posts", postRouter);
 server.use("/users", userRouter);
@@ -51,10 +53,10 @@ server.use("/search", searchRouter);
 //test router
 server.use("/test", testRouter);
 
-server.all("/", (_, res) => {
-  //temporary redirect until i give main page its own router or smtg, CHNL
-  res.redirect("/posts/all");
-});
+// server.all("/", (_, res) => {
+//   //temporary redirect until i give main page its own router or smtg, CHNL
+//   res.redirect("/posts/all");
+// });
 
 server.listen(port, () => {
   console.log(`Example server listening at http://localhost:${port}`); //not adam literally copying this mn doc dial express, "Example server"

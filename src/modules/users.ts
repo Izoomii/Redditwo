@@ -3,7 +3,8 @@ import { User } from "@prisma/client";
 import prisma from "../libs/prisma";
 import { hash } from "argon2";
 import multer from "multer";
-import { verifyPasswordStrength } from "../libs/globalVars";
+import { frontURL, verifyPasswordStrength } from "../libs/globalVars";
+import { isAuthentified } from "../libs/middleware/auth";
 
 const userRouter = Router();
 
@@ -19,6 +20,41 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + file.originalname);
   },
 });
+
+const upload = multer({ storage: storage });
+//update avatar
+userRouter.post(
+  "/updateavatar",
+  upload.single("avatar"),
+  // upload.fields([{ name: "newavatar" }]),
+  async (req, res) => {
+    const image = req.file;
+    const user = req.user as User;
+    console.log(req.body);
+    // res.json(image);
+
+    const updatedUser = await prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        avatar: image.filename,
+      },
+    });
+    req.logIn(updatedUser, (err) => {
+      // if (!err) console.log("Successfully updated user", updatedUser);
+    });
+    res.json({ updated: true, updatedUser });
+    res.end();
+  }
+);
+
+interface createUserBody {
+  nickname: string;
+  email: string;
+  password: string;
+  name?: string;
+}
 
 //finds all users registered
 userRouter.get("/all", async (_, res) => {
@@ -82,10 +118,11 @@ interface updateInfo {
   name?: string;
 }
 
-userRouter.post("/update", async (req, res) => {
+userRouter.post("/update", isAuthentified, async (req, res) => {
   //debating whether it's worth it to add code just to not update all sections at the same time if it doesn't cost much
   const updatedInfo = req.body as updateInfo;
   const user = req.user as User;
+  if (updatedInfo.name === "") updatedInfo.name = null;
   try {
     const updatedUser = await prisma.user.update({
       where: {
@@ -106,41 +143,6 @@ userRouter.post("/update", async (req, res) => {
     });
   }
 });
-
-const upload = multer({ storage: storage });
-//update avatar
-userRouter.post(
-  "/updateavatar",
-  upload.single("avatar"),
-  // upload.fields([{ name: "newavatar" }]),
-  async (req, res) => {
-    const image = req.file;
-    const user = req.user as User;
-    console.log(req.body);
-    // res.json(image);
-
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        avatar: image.filename,
-      },
-    });
-    req.logIn(updatedUser, (err) => {
-      // if (!err) console.log("Successfully updated user", updatedUser);
-    });
-    res.json({ updated: true, updatedUser });
-    res.end();
-  }
-);
-
-interface createUserBody {
-  nickname: string;
-  email: string;
-  password: string;
-  name?: string;
-}
 
 //creates a user
 userRouter.post("/createuser", async (req, res) => {

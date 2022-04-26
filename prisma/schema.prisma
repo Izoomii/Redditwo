@@ -8,23 +8,23 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(cuid())
-  email     String  @unique @db.Citext
-  nickname  String  @unique @db.Citext
-  password  String
-  name      String?
-  avatar    String?
-  posts     Post[]
-  votes     Vote[]
-  ownedSubs Sub[]
-
+  id            String         @id @default(cuid())
+  email         String         @unique @db.Citext
+  nickname      String         @unique @db.Citext
+  password      String
+  name          String?
+  avatar        String?
+  posts         Post[]
+  votes         Vote[]
+  ownedSubs     Sub[]
+  subscriptions Subscription[]
 }
 
 model Post {
   id         String   @id @default(cuid())
   title      String   @db.VarChar(255)
   content    String?
-  sub        Sub      @relation(fields: [subName], references: [name])
+  sub        Sub      @relation(fields: [subName], references: [name], onDelete: Cascade) //probably better to use ID
   subName    String   @db.Citext
   published  Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -35,22 +35,17 @@ model Post {
 }
 
 model Sub {
-  id          String  @id @default(cuid())
-  owner       User    @relation(fields: [ownerName], references: [nickname], onDelete: SetNull)
-  ownerName   String  @db.Citext
-  name        String  @unique @db.Citext
-  description String?
-  posts       Post[]
-
-}
-
-enum VoteType {
-  UP
-  DOWN
+  id            String         @id @default(cuid())
+  owner         User           @relation(fields: [ownerName], references: [nickname]) //IMPL setting owner to Null is bad
+  ownerName     String         @db.Citext
+  name          String         @unique @db.Citext
+  description   String?
+  posts         Post[]
+  subscriptions Subscription[]
 }
 
 model Vote {
-  User      User      @relation(fields: [userId], references: [id], onDelete: Cascade) //user's votes go away when user is deleted
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade) //user's votes go away when user is deleted
   userId    String
   post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String
@@ -59,4 +54,21 @@ model Vote {
   updatedAt DateTime  @updatedAt
 
   @@id([userId, postId])
+}
+
+model Subscription {
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  sub        Sub      @relation(fields: [subId], references: [id], onDelete: Cascade)
+  subId      String
+  subscribed Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@id([userId, subId])
+}
+
+enum VoteType {
+  UP
+  DOWN
 }

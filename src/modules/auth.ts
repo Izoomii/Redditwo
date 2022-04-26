@@ -15,6 +15,8 @@ const authRouter = Router();
 //   res.send(200);
 // });
 
+//does the same thing as /users/:nickname ??
+//probably better to verify here
 authRouter.get("/:user", async (req, res) => {
   const user = await prisma.user.findUnique({
     where: {
@@ -28,20 +30,14 @@ authRouter.get("/:user", async (req, res) => {
   }
 });
 
-authRouter.get("/login", (req, res, next) => {
-  //res.render("login.pug");
-  if (!req.user) {
-    res.send("Login page. You are not logged in");
-    //res.render("404.pug");
-    console.log("No user, staying on the same page");
-  } else {
-    res.redirect("/");
-    //let user = req.user as User;
-    // res.render("login.pug", {
-    //   loginTitle: `You are already logged in ${user.nickname}!`,
-    // });
-  }
-});
+// authRouter.get("/login", (req, res, next) => {
+//   if (!req.user) {
+//     res.json({ message: "Login page. You are not logged in" });
+//     console.log("No user, staying on the same page");
+//   } else {
+//     res.redirect("/");
+//   }
+// });
 
 authRouter.post("/login", (req, res, next) => {
   authenticate("local", (err, user, info) => {
@@ -77,7 +73,7 @@ interface passwordChangeRequest {
   new: string;
   repeat: string;
 }
-
+ 
 authRouter.post("/passwordchange", isAuthentified, async (req, res) => {
   const user = req.user as User;
   const passwords = req.body as passwordChangeRequest;
@@ -108,10 +104,10 @@ authRouter.post("/passwordchange", isAuthentified, async (req, res) => {
         });
       }
     } else {
-      // console.log("Repeated password doesn't match");
+      console.log("Repeated password doesn't match");
     }
   } else {
-    // console.log("Original password doesn't match.");
+    console.log("Original password doesn't match.");
   }
 });
 

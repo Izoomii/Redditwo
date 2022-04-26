@@ -1,7 +1,7 @@
 import { Request } from "express";
 
 //front end port
-export const frontPort = 3000;
+export const frontURL = "http://localhost:3000";
 
 export const avatarPath =
   "/home/izumi/Documents/Redditwo/frontend/public/assets/avatars";

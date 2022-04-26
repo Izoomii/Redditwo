@@ -5,6 +5,8 @@ export function isAuthentified(
   res: Response,
   next: NextFunction
 ) {
-  if (!req.user) return res.status(403).json({ message: "Not Logged." });
+  if (!req.user) {
+    return res.status(403).json({ message: "Not Logged." });
+  }
   next();
 }
