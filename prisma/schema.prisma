@@ -24,6 +24,7 @@ model Post {
   id         String   @id @default(cuid())
   title      String   @db.VarChar(255)
   content    String?
+  images     String[]
   sub        Sub      @relation(fields: [subName], references: [name], onDelete: Cascade) //probably better to use ID
   subName    String   @db.Citext
   published  Boolean  @default(false)
@@ -40,6 +41,7 @@ model Sub {
   ownerName     String         @db.Citext
   name          String         @unique @db.Citext
   description   String?
+  image         String?
   posts         Post[]
   subscriptions Subscription[]
 }

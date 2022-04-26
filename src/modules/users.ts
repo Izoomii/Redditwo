@@ -5,32 +5,21 @@ import { hash } from "argon2";
 import multer from "multer";
 import { frontURL, verifyPasswordStrength } from "../libs/globalVars";
 import { isAuthentified } from "../libs/middleware/auth";
+import { uploadSingle } from "../libs/middleware/uploadImage";
 
 const userRouter = Router();
 
-const destination =
+const avatarDestination =
   "/home/izumi/Documents/Redditwo/frontend/public/assets/avatars";
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, destination);
-  },
-  filename: (req, file, cb) => {
-    // console.log(file);
-    cb(null, Date.now() + file.originalname);
-  },
-});
-
-const upload = multer({ storage: storage });
 //update avatar
 userRouter.post(
   "/updateavatar",
-  upload.single("avatar"),
-  // upload.fields([{ name: "newavatar" }]),
+  // upload.single("avatar"),
+  uploadSingle("avatar", avatarDestination),
   async (req, res) => {
     const image = req.file;
     const user = req.user as User;
-    console.log(req.body);
     // res.json(image);
 
     const updatedUser = await prisma.user.update({
