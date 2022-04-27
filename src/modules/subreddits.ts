@@ -118,6 +118,13 @@ subredditRouter.post("/createsub", isAuthentified, async (req, res) => {
       ownerName: user.nickname,
     },
   });
+  await prisma.subscription.create({
+    data: {
+      userId: user.id,
+      subId: newSub.id,
+      subscribed: true,
+    },
+  });
   res.json({
     message: `Created sub: [${newSub.name}], owned by ${user.nickname}`,
   });
