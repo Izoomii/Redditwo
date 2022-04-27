@@ -7,8 +7,8 @@ export const assetsDestination =
   "/home/izumi/Documents/Redditwo/frontend/public/assets/";
 
 export const avatarsDestination = assetsDestination + "avatars/";
-
 export const postImagesDestination = assetsDestination + "postImages/";
+export const subImagesDestination = assetsDestination + "subImages/";
 
 export const getcookie = (req: Request) => {
   try {

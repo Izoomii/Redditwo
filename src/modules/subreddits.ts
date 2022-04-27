@@ -2,6 +2,8 @@ import { Router } from "express";
 import { Post, Sub, User } from "@prisma/client";
 import prisma from "../libs/prisma";
 import { isAuthentified } from "../libs/middleware/auth";
+import { uploadSingle } from "../libs/middleware/uploadImage";
+import { subImagesDestination } from "../libs/globalVars";
 
 const subredditRouter = Router();
 
@@ -120,5 +122,52 @@ subredditRouter.post("/createsub", isAuthentified, async (req, res) => {
     message: `Created sub: [${newSub.name}], owned by ${user.nickname}`,
   });
 });
+
+//update sub
+subredditRouter.post(
+  "/updatesub/:id",
+  isAuthentified,
+  uploadSingle("image", subImagesDestination),
+  async (req, res) => {
+    const subId = req.params.id;
+    const body = req.body as Sub;
+    const image = req.file;
+
+    const sub = await prisma.sub.findUnique({
+      where: {
+        id: subId,
+      },
+    });
+    if (!sub) return res.json({ message: "Sub doesn't exist" });
+
+    //this looks very very changeable man CHNL
+    if (!image) {
+      const result = await prisma.sub.update({
+        where: {
+          id: subId,
+        },
+        data: {
+          name: body.name,
+          description: body.description,
+        },
+      });
+      console.log(`Updated sub ${sub.name} without image`);
+      res.json(result);
+    } else {
+      const result = await prisma.sub.update({
+        where: {
+          id: subId,
+        },
+        data: {
+          name: body.name,
+          description: body.description,
+          image: image.filename,
+        },
+      });
+      console.log(`Updated sub ${sub.name} with image`);
+      res.json(result);
+    }
+  }
+);
 
 export = subredditRouter;

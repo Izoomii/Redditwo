@@ -73,7 +73,7 @@ interface passwordChangeRequest {
   new: string;
   repeat: string;
 }
- 
+
 authRouter.post("/passwordchange", isAuthentified, async (req, res) => {
   const user = req.user as User;
   const passwords = req.body as passwordChangeRequest;
