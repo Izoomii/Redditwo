@@ -16,5 +16,5 @@ export function uploadSingle(name: string, destination: string) {
     },
   });
   const upload = multer({ storage: storage });
-  return upload.single("avatar");
+  return upload.single(name);
 }

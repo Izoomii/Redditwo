@@ -3,8 +3,12 @@ import { Request } from "express";
 //front end port
 export const frontURL = "http://localhost:3000";
 
-export const avatarPath =
-  "/home/izumi/Documents/Redditwo/frontend/public/assets/avatars";
+export const assetsDestination =
+  "/home/izumi/Documents/Redditwo/frontend/public/assets/";
+
+export const avatarsDestination = assetsDestination + "avatars/";
+
+export const postImagesDestination = assetsDestination + "postImages/";
 
 export const getcookie = (req: Request) => {
   try {

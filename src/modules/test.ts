@@ -1,7 +1,11 @@
 import { Router } from "express";
+import multer from "multer";
+
 const testRouter = Router();
 
-testRouter.post("/post/lookback", (req, res) => {
+const upload = multer();
+
+testRouter.post("/post/lookback", upload.none(), (req, res) => {
   res.json(req.body);
 });
 

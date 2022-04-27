@@ -2,25 +2,21 @@ import { Router } from "express";
 import { User } from "@prisma/client";
 import prisma from "../libs/prisma";
 import { hash } from "argon2";
-import multer from "multer";
-import { frontURL, verifyPasswordStrength } from "../libs/globalVars";
+import { verifyPasswordStrength } from "../libs/globalVars";
 import { isAuthentified } from "../libs/middleware/auth";
 import { uploadSingle } from "../libs/middleware/uploadImage";
+import { avatarsDestination } from "../libs/globalVars";
 
 const userRouter = Router();
-
-const avatarDestination =
-  "/home/izumi/Documents/Redditwo/frontend/public/assets/avatars";
 
 //update avatar
 userRouter.post(
   "/updateavatar",
-  // upload.single("avatar"),
-  uploadSingle("avatar", avatarDestination),
+  uploadSingle("avatar", avatarsDestination),
   async (req, res) => {
     const image = req.file;
+    if (!image) return console.log("No image uploaded");
     const user = req.user as User;
-    // res.json(image);
 
     const updatedUser = await prisma.user.update({
       where: {
