@@ -136,16 +136,18 @@ subredditRouter.post(
   isAuthentified,
   uploadSingle("image", subImagesDestination),
   async (req, res) => {
+    const user = req.user as User;
     const subId = req.params.id;
     const body = req.body as Sub;
     const image = req.file;
-
     const sub = await prisma.sub.findUnique({
       where: {
         id: subId,
       },
     });
     if (!sub) return res.json({ message: "Sub doesn't exist" });
+    if (user.nickname !== sub.ownerName)
+      return res.json({ message: "Not the owner of sub" });
 
     //this looks very very changeable man CHNL
     if (!image) {

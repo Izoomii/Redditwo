@@ -12,6 +12,7 @@ const userRouter = Router();
 //update avatar
 userRouter.post(
   "/updateavatar",
+  isAuthentified,
   uploadSingle("avatar", avatarsDestination),
   async (req, res) => {
     const image = req.file;
@@ -33,6 +34,21 @@ userRouter.post(
     res.end();
   }
 );
+
+userRouter.post("/deleteavatar", isAuthentified, async (req, res) => {
+  const user = req.user as User;
+  const updateUser = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      avatar: null,
+    },
+  });
+  req.logIn(updateUser, (err) => {
+    if (!err) return res.json(updateUser);
+  });
+});
 
 interface createUserBody {
   nickname: string;

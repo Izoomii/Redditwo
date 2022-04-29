@@ -38,7 +38,7 @@ postRouter.get("/:id", async (req, res) => {
     console.log("Get request with invalid id.");
     return res.json({ message: "No post with that id." });
   }
-  console.log(`Responded to GET request of a post [id: ${post.id}]`);
+  console.log(`Fetched post [id: ${post.id}]`);
   res.json({ post: post });
 });
 
@@ -170,6 +170,55 @@ postRouter.post(
       message: `Post created! Title: ${post.title}, made by ${user.nickname}`,
     });
     // console.log(`Post created in sub ${body.subName} with title "${body.title}"`);
+  }
+);
+
+postRouter.post(
+  "/updatepost/:id",
+  isAuthentified,
+  uploadSingle("image", postImagesDestination),
+  async (req, res) => {
+    const postId = req.params.id;
+    const body = req.body as Post;
+    const image = req.file;
+    const user = req.user as User;
+
+    const post = await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+
+    if (!post) return res.json({ message: "Post doesn't exist" });
+    if (user.nickname !== post.authorName)
+      return res.json({ message: "Not author of the post" });
+    if (body.title === "")
+      return res.json({ message: "Title cannot be empty" });
+
+    if (!image) {
+      const updatedPost = await prisma.post.update({
+        where: {
+          id: post.id,
+        },
+        data: {
+          title: body.title,
+          content: body.content,
+        },
+      });
+      res.json({ message: `Updated post ${updatedPost.title} without image` });
+    } else {
+      const updatedPost = await prisma.post.update({
+        where: {
+          id: post.id,
+        },
+        data: {
+          title: body.title,
+          content: body.content,
+          images: [image.filename],
+        },
+      });
+      res.json({ message: `Updated post ${updatedPost.title} with image` });
+    }
   }
 );
 
