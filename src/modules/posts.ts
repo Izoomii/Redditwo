@@ -44,26 +44,44 @@ postRouter.get("/:id", async (req, res) => {
 
 //this feels janky, IMPL
 postRouter.get("/:id/votecount", async (req, res) => {
-  const id = req.params.id;
+  const postId = req.params.id;
+  const user = req.user as User;
   const upvotes = await prisma.vote.aggregate({
     where: {
-      postId: id,
+      postId: postId,
       voteType: "UP",
     },
     _count: true,
   });
   const downvotes = await prisma.vote.aggregate({
     where: {
-      postId: id,
+      postId: postId,
       voteType: "DOWN",
     },
     _count: true,
   });
-  res.json({
-    upvotes: upvotes._count,
-    downvotes: downvotes._count,
-    total: upvotes._count - downvotes._count,
-  });
+  if (user) {
+    const vote = await prisma.vote.findUnique({
+      where: {
+        userId_postId: {
+          userId: user.id,
+          postId: postId,
+        },
+      },
+    });
+    res.json({
+      upvotes: upvotes._count,
+      downvotes: downvotes._count,
+      total: upvotes._count - downvotes._count,
+      votetype: vote.voteType,
+    });
+  } else {
+    res.json({
+      upvotes: upvotes._count,
+      downvotes: downvotes._count,
+      total: upvotes._count - downvotes._count,
+    });
+  }
 });
 
 //IMPL this feels like it can be improved a lot more

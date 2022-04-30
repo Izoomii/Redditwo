@@ -50,13 +50,6 @@ userRouter.post("/deleteavatar", isAuthentified, async (req, res) => {
   });
 });
 
-interface createUserBody {
-  nickname: string;
-  email: string;
-  password: string;
-  name?: string;
-}
-
 //finds all users registered
 userRouter.get("/all", async (_, res) => {
   const users = await prisma.user.findMany({
@@ -146,51 +139,75 @@ userRouter.post("/update", isAuthentified, async (req, res) => {
 });
 
 //creates a user
-userRouter.post("/createuser", async (req, res) => {
-  const body = req.body as createUserBody;
-  //console.log(body);
-
-  if (!verifyPasswordStrength(body.password))
-    return res.json({ message: "Password requirements don't match" });
-  if (req.body.password === req.body.repeatPassword) {
-    const existingUsers = await prisma.user.findMany({
-      where: {
-        OR: [
-          {
-            nickname: body.nickname,
-          },
-          {
-            email: body.email,
-          },
-        ],
-      },
-    });
-    if (existingUsers.length != 0) {
-      res.json({
-        message:
-          "[IMPL] Sorry, those credentials are already taken, please try other ones",
-        users: existingUsers,
+userRouter.post(
+  "/createuser",
+  uploadSingle("avatar", avatarsDestination),
+  async (req, res) => {
+    const user = req.user as User;
+    if (user)
+      return res.json({
+        message: "Cannot create a user if you're already logged in.",
       });
-      console.log("[IMPL] Credentials already taken");
-    } else {
-      const newUser = await prisma.user.create({
-        data: {
-          email: body.email,
-          nickname: body.nickname,
-          password: await hash(body.password),
+    const body = req.body as User;
+    const image = req.file;
+
+    if (!verifyPasswordStrength(body.password))
+      return res.json({ message: "Password requirements don't match" });
+    if (req.body.password === req.body.repeatPassword) {
+      const existingUsers = await prisma.user.findMany({
+        where: {
+          OR: [
+            {
+              nickname: body.nickname,
+            },
+            {
+              email: body.email,
+            },
+          ],
         },
       });
-      req.logIn(newUser, (err) => {
-        if (!err) console.log(`Logged in new user.`);
-        console.log(newUser);
-      });
-      res.json({ message: "Profile created!", user: body });
+      if (existingUsers.length != 0) {
+        res.json({
+          message:
+            "[IMPL] Sorry, those credentials are already taken, please try other ones",
+          users: existingUsers,
+        });
+        console.log("[IMPL] Credentials already taken");
+      } else {
+        if (image) {
+          const newUser = await prisma.user.create({
+            data: {
+              email: body.email,
+              nickname: body.nickname,
+              password: await hash(body.password),
+              avatar: image.filename,
+            },
+          });
+          req.logIn(newUser, (err) => {
+            if (!err) console.log(`Logged in new user.`);
+            console.log(newUser);
+          });
+        } else {
+          const newUser = await prisma.user.create({
+            data: {
+              email: body.email,
+              nickname: body.nickname,
+              password: await hash(body.password),
+            },
+          });
+          req.logIn(newUser, (err) => {
+            if (!err) console.log(`Logged in new user.`);
+            console.log(newUser);
+          });
+        }
+        res.json({ message: "Profile created!", user: body });
+      }
+    } else {
+      console.log("Passwords don't match.");
+      res.json({ message: "Passwords do not match, please try again." });
     }
-  } else {
-    console.log("Passwords don't match.");
-    res.json({ message: "Passwords do not match, please try again." });
   }
-});
+);
 
 //deletes user
 userRouter.delete("/delete/:name", async (req, res) => {
