@@ -69,12 +69,21 @@ postRouter.get("/:id/votecount", async (req, res) => {
         },
       },
     });
-    res.json({
-      upvotes: upvotes._count,
-      downvotes: downvotes._count,
-      total: upvotes._count - downvotes._count,
-      votetype: vote.voteType,
-    });
+    //CHNL repeated code.
+    if (vote) {
+      res.json({
+        upvotes: upvotes._count,
+        downvotes: downvotes._count,
+        total: upvotes._count - downvotes._count,
+        votetype: vote.voteType,
+      });
+    } else {
+      res.json({
+        upvotes: upvotes._count,
+        downvotes: downvotes._count,
+        total: upvotes._count - downvotes._count,
+      });
+    }
   } else {
     res.json({
       upvotes: upvotes._count,

@@ -103,32 +103,48 @@ subredditRouter.post(`/subscribe/:subId`, isAuthentified, async (req, res) => {
 });
 
 //create new sub
-subredditRouter.post("/createsub", isAuthentified, async (req, res) => {
-  const sub = req.body as Sub;
-  const user = req.user as User;
-  const existingSub = await prisma.sub.findUnique({
-    where: {
-      name: sub.name,
-    },
-  });
-  if (existingSub) return res.json({ message: "Sub already exists!" });
-  const newSub = await prisma.sub.create({
-    data: {
-      name: sub.name,
-      ownerName: user.nickname,
-    },
-  });
-  await prisma.subscription.create({
-    data: {
-      userId: user.id,
-      subId: newSub.id,
-      subscribed: true,
-    },
-  });
-  res.json({
-    message: `Created sub: [${newSub.name}], owned by ${user.nickname}`,
-  });
-});
+subredditRouter.post(
+  "/createsub",
+  isAuthentified,
+  uploadSingle("image", subImagesDestination),
+  async (req, res) => {
+    const sub = req.body as Sub;
+    const user = req.user as User;
+    const image = req.file;
+    const existingSub = await prisma.sub.findUnique({
+      where: {
+        name: sub.name,
+      },
+    });
+    if (existingSub) return res.json({ message: "Sub already exists!" });
+    const newSub = image
+      ? await prisma.sub.create({
+          data: {
+            name: sub.name,
+            description: sub.description,
+            ownerName: user.nickname,
+            image: image.filename,
+          },
+        })
+      : await prisma.sub.create({
+          data: {
+            name: sub.name,
+            description: sub.description,
+            ownerName: user.nickname,
+          },
+        });
+    await prisma.subscription.create({
+      data: {
+        userId: user.id,
+        subId: newSub.id,
+        subscribed: true,
+      },
+    });
+    res.json({
+      message: `Created sub: [${newSub.name}], owned by ${user.nickname}`,
+    });
+  }
+);
 
 //update sub
 subredditRouter.post(
