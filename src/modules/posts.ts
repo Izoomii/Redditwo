@@ -283,30 +283,28 @@ postRouter.post(
     if (body.title === "")
       return res.json({ message: "Title cannot be empty" });
 
-    if (!image) {
-      const updatedPost = await prisma.post.update({
-        where: {
-          id: post.id,
-        },
-        data: {
-          title: body.title,
-          content: body.content,
-        },
-      });
-      res.json({ message: `Updated post ${updatedPost.title} without image` });
-    } else {
-      const updatedPost = await prisma.post.update({
-        where: {
-          id: post.id,
-        },
-        data: {
-          title: body.title,
-          content: body.content,
-          images: [image.filename],
-        },
-      });
-      res.json({ message: `Updated post ${updatedPost.title} with image` });
-    }
+    const updatedPost = image
+      ? await prisma.post.update({
+          where: {
+            id: post.id,
+          },
+          data: {
+            title: body.title,
+            content: body.content,
+            images: [image.filename],
+          },
+        })
+      : await prisma.post.update({
+          where: {
+            id: post.id,
+          },
+          data: {
+            title: body.title,
+            content: body.content,
+          },
+        });
+
+    res.json({ message: "Updated post" });
   }
 );
 

@@ -166,32 +166,28 @@ subredditRouter.post(
       return res.json({ message: "Not the owner of sub" });
 
     //this looks very very changeable man CHNL
-    if (!image) {
-      const result = await prisma.sub.update({
-        where: {
-          id: subId,
-        },
-        data: {
-          name: body.name,
-          description: body.description,
-        },
-      });
-      console.log(`Updated sub ${sub.name} without image`);
-      res.json(result);
-    } else {
-      const result = await prisma.sub.update({
-        where: {
-          id: subId,
-        },
-        data: {
-          name: body.name,
-          description: body.description,
-          image: image.filename,
-        },
-      });
-      console.log(`Updated sub ${sub.name} with image`);
-      res.json(result);
-    }
+
+    const updatedSub = image
+      ? await prisma.sub.update({
+          where: {
+            id: subId,
+          },
+          data: {
+            name: body.name,
+            description: body.description,
+            image: image.filename,
+          },
+        })
+      : await prisma.sub.update({
+          where: {
+            id: subId,
+          },
+          data: {
+            name: body.name,
+            description: body.description,
+          },
+        });
+    res.json(updatedSub);
   }
 );
 

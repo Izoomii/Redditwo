@@ -174,32 +174,26 @@ userRouter.post(
         });
         console.log("[IMPL] Credentials already taken");
       } else {
-        if (image) {
-          const newUser = await prisma.user.create({
-            data: {
-              email: body.email,
-              nickname: body.nickname,
-              password: await hash(body.password),
-              avatar: image.filename,
-            },
-          });
-          req.logIn(newUser, (err) => {
-            if (!err) console.log(`Logged in new user.`);
-            console.log(newUser);
-          });
-        } else {
-          const newUser = await prisma.user.create({
-            data: {
-              email: body.email,
-              nickname: body.nickname,
-              password: await hash(body.password),
-            },
-          });
-          req.logIn(newUser, (err) => {
-            if (!err) console.log(`Logged in new user.`);
-            console.log(newUser);
-          });
-        }
+        const newUser = image
+          ? await prisma.user.create({
+              data: {
+                email: body.email,
+                nickname: body.nickname,
+                password: await hash(body.password),
+                avatar: image.filename,
+              },
+            })
+          : await prisma.user.create({
+              data: {
+                email: body.email,
+                nickname: body.nickname,
+                password: await hash(body.password),
+              },
+            });
+        req.logIn(newUser, (err) => {
+          if (!err) console.log(`Logged in new user.`);
+          console.log(newUser);
+        });
         res.json({ message: "Profile created!", user: body });
       }
     } else {
