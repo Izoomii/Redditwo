@@ -162,6 +162,67 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
   }
 });
 
+postRouter.get("/:id/save", async (req, res) => {
+  const postId = req.params.id;
+  const user = req.user as User;
+  if (!user) {
+    res.json({ saved: false });
+  } else {
+    const interaction = await prisma.interactions.findUnique({
+      where: {
+        userId_postId: {
+          userId: user.id,
+          postId: postId,
+        },
+      },
+    });
+    if (interaction) {
+      res.json({ saved: interaction.saved });
+    } else {
+      res.json({ saved: false });
+    }
+  }
+});
+
+postRouter.post("/:id/save", isAuthentified, async (req, res) => {
+  const postId = req.params.id;
+  const user = req.user as User;
+  const findPost = await prisma.post.findUnique({ where: { id: postId } });
+  if (!findPost) return res.json({ message: "Post doesn't exit" });
+  const existingSave = await prisma.interactions.findUnique({
+    where: {
+      userId_postId: {
+        userId: user.id,
+        postId: postId,
+      },
+    },
+  });
+  if (existingSave) {
+    const newSave = await prisma.interactions.update({
+      where: {
+        userId_postId: {
+          userId: user.id,
+          postId: postId,
+        },
+      },
+      data: {
+        saved: !existingSave.saved,
+      },
+    });
+    res.json({ message: `Updated interaction with save ${newSave.saved}` });
+  } else {
+    await prisma.interactions.create({
+      data: {
+        userId: user.id,
+        postId: postId,
+        voteType: null,
+        saved: true,
+      },
+    });
+    res.json({ message: `Created new interaction instance with save: TRUE` });
+  }
+});
+
 //creates a new post for a user
 postRouter.post(
   "/createpost",
