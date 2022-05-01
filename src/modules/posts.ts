@@ -46,14 +46,14 @@ postRouter.get("/:id", async (req, res) => {
 postRouter.get("/:id/votecount", async (req, res) => {
   const postId = req.params.id;
   const user = req.user as User;
-  const upvotes = await prisma.vote.aggregate({
+  const upvotes = await prisma.interactions.aggregate({
     where: {
       postId: postId,
       voteType: "UP",
     },
     _count: true,
   });
-  const downvotes = await prisma.vote.aggregate({
+  const downvotes = await prisma.interactions.aggregate({
     where: {
       postId: postId,
       voteType: "DOWN",
@@ -61,7 +61,7 @@ postRouter.get("/:id/votecount", async (req, res) => {
     _count: true,
   });
   if (user) {
-    const vote = await prisma.vote.findUnique({
+    const vote = await prisma.interactions.findUnique({
       where: {
         userId_postId: {
           userId: user.id,
@@ -104,7 +104,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
     },
   });
   if (!post) return res.json({ message: "Post doesn't exist." });
-  const postVote = await prisma.vote.findUnique({
+  const postVote = await prisma.interactions.findUnique({
     where: {
       userId_postId: {
         userId: user.id,
@@ -115,7 +115,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
   if (postVote) {
     //change vote type here..
     if (postVote.voteType === vote) {
-      const result = await prisma.vote.update({
+      const result = await prisma.interactions.update({
         where: {
           userId_postId: {
             userId: user.id,
@@ -131,7 +131,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
         vote: result.voteType,
       });
     } else {
-      const result = await prisma.vote.update({
+      const result = await prisma.interactions.update({
         where: {
           userId_postId: {
             userId: user.id,
@@ -148,7 +148,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
       });
     }
   } else {
-    const newVote = await prisma.vote.create({
+    const newVote = await prisma.interactions.create({
       data: {
         userId: user.id,
         postId: post.id,
@@ -186,7 +186,7 @@ postRouter.post(
         images: images,
       },
     });
-    await prisma.vote.create({
+    await prisma.interactions.create({
       data: {
         userId: user.id,
         postId: post.id,
