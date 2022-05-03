@@ -6,6 +6,7 @@ import { verifyPasswordStrength } from "../libs/globalVars";
 import { isAuthentified } from "../libs/middleware/auth";
 import { uploadSingle } from "../libs/middleware/uploadImage";
 import { avatarsDestination } from "../libs/globalVars";
+import { unlinkSync } from "fs";
 
 const userRouter = Router();
 
@@ -151,9 +152,16 @@ userRouter.post(
     const body = req.body as User;
     const image = req.file;
 
-    if (!verifyPasswordStrength(body.password))
+    if (!verifyPasswordStrength(body.password)) {
+      if (image) unlinkSync(avatarsDestination + image.filename); //IMPL repeated multiple times it's giving me cancer
       return res.json({ message: "Password requirements don't match" });
-    if (req.body.password === req.body.repeatPassword) {
+    }
+    if (req.body.password !== req.body.repeatPassword) {
+      if (image) unlinkSync(avatarsDestination + image.filename);
+
+      console.log("Passwords don't match.");
+      res.json({ message: "Passwords do not match, please try again." });
+    } else {
       const existingUsers = await prisma.user.findMany({
         where: {
           OR: [
@@ -167,6 +175,7 @@ userRouter.post(
         },
       });
       if (existingUsers.length != 0) {
+        if (image) unlinkSync(avatarsDestination + image.filename);
         res.json({
           message:
             "[IMPL] Sorry, those credentials are already taken, please try other ones",
@@ -194,11 +203,8 @@ userRouter.post(
           if (!err) console.log(`Logged in new user.`);
           console.log(newUser);
         });
-        res.json({ message: "Profile created!", user: body });
+        res.json({ message: "Profile created!", user: newUser });
       }
-    } else {
-      console.log("Passwords don't match.");
-      res.json({ message: "Passwords do not match, please try again." });
     }
   }
 );

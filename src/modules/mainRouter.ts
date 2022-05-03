@@ -18,6 +18,7 @@ mainRouter.get("/", async (req, res) => {
         subscriptions: {
           some: {
             userId: user.id,
+            subscribed: true,
           },
         },
       },
