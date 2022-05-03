@@ -15,24 +15,26 @@ model User {
   name          String?
   avatar        String?
   posts         Post[]
-  interactions  Interactions[]
+  interactions  Interaction[]
   ownedSubs     Sub[]
   subscriptions Subscription[]
+  comments      Comment[]
 }
 
 model Post {
-  id           String         @id @default(cuid())
-  title        String         @db.VarChar(255)
+  id           String        @id @default(cuid())
+  title        String        @db.VarChar(255)
   content      String?
   images       String[]
-  sub          Sub            @relation(fields: [subName], references: [name], onDelete: Cascade) //probably better to use ID
-  subName      String         @db.Citext
-  published    Boolean        @default(false)
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
-  author       User?          @relation(fields: [authorName], references: [nickname], onDelete: SetNull) //user's posts cannot be deleted
-  authorName   String?        @db.Citext
-  Interactions Interactions[]
+  sub          Sub           @relation(fields: [subName], references: [name], onDelete: Cascade) //probably better to use ID
+  subName      String        @db.Citext
+  published    Boolean       @default(false)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  author       User?         @relation(fields: [authorName], references: [nickname], onDelete: SetNull) //user's posts cannot be deleted
+  authorName   String?       @db.Citext
+  Interactions Interaction[]
+  comments     Comment[]
 }
 
 model Sub {
@@ -46,7 +48,18 @@ model Sub {
   subscriptions Subscription[]
 }
 
-model Interactions {
+model Comment {
+  id        String   @id @default(cuid())
+  owner     User     @relation(fields: [ownerName], references: [nickname])
+  ownerName String   @db.Citext
+  post      Post     @relation(fields: [postId], references: [id])
+  postId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  content   String
+}
+
+model Interaction {
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade) //user's votes go away when user is deleted
   userId    String
   post      Post      @relation(fields: [postId], references: [id], onDelete: Cascade)

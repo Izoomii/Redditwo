@@ -1,4 +1,4 @@
-import { Post, User, VoteType } from "@prisma/client";
+import { Comment, Post, User, VoteType } from "@prisma/client";
 import { Router } from "express";
 import { uploadSingle } from "../libs/middleware/uploadImage";
 import { isAuthentified } from "../libs/middleware/auth";
@@ -46,14 +46,14 @@ postRouter.get("/:id", async (req, res) => {
 postRouter.get("/:id/votecount", async (req, res) => {
   const postId = req.params.id;
   const user = req.user as User;
-  const upvotes = await prisma.interactions.aggregate({
+  const upvotes = await prisma.interaction.aggregate({
     where: {
       postId: postId,
       voteType: "UP",
     },
     _count: true,
   });
-  const downvotes = await prisma.interactions.aggregate({
+  const downvotes = await prisma.interaction.aggregate({
     where: {
       postId: postId,
       voteType: "DOWN",
@@ -61,7 +61,7 @@ postRouter.get("/:id/votecount", async (req, res) => {
     _count: true,
   });
   if (user) {
-    const vote = await prisma.interactions.findUnique({
+    const vote = await prisma.interaction.findUnique({
       where: {
         userId_postId: {
           userId: user.id,
@@ -104,7 +104,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
     },
   });
   if (!post) return res.json({ message: "Post doesn't exist." });
-  const postVote = await prisma.interactions.findUnique({
+  const postVote = await prisma.interaction.findUnique({
     where: {
       userId_postId: {
         userId: user.id,
@@ -115,7 +115,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
   if (postVote) {
     //change vote type here..
     if (postVote.voteType === vote) {
-      const result = await prisma.interactions.update({
+      const result = await prisma.interaction.update({
         where: {
           userId_postId: {
             userId: user.id,
@@ -131,7 +131,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
         vote: result.voteType,
       });
     } else {
-      const result = await prisma.interactions.update({
+      const result = await prisma.interaction.update({
         where: {
           userId_postId: {
             userId: user.id,
@@ -148,7 +148,7 @@ postRouter.post("/:id/vote", isAuthentified, async (req, res) => {
       });
     }
   } else {
-    const newVote = await prisma.interactions.create({
+    const newVote = await prisma.interaction.create({
       data: {
         userId: user.id,
         postId: post.id,
@@ -168,7 +168,7 @@ postRouter.get("/:id/save", async (req, res) => {
   if (!user) {
     res.json({ saved: false });
   } else {
-    const interaction = await prisma.interactions.findUnique({
+    const interaction = await prisma.interaction.findUnique({
       where: {
         userId_postId: {
           userId: user.id,
@@ -189,7 +189,7 @@ postRouter.post("/:id/save", isAuthentified, async (req, res) => {
   const user = req.user as User;
   const findPost = await prisma.post.findUnique({ where: { id: postId } });
   if (!findPost) return res.json({ message: "Post doesn't exit" });
-  const existingSave = await prisma.interactions.findUnique({
+  const existingSave = await prisma.interaction.findUnique({
     where: {
       userId_postId: {
         userId: user.id,
@@ -198,7 +198,7 @@ postRouter.post("/:id/save", isAuthentified, async (req, res) => {
     },
   });
   if (existingSave) {
-    const newSave = await prisma.interactions.update({
+    const newSave = await prisma.interaction.update({
       where: {
         userId_postId: {
           userId: user.id,
@@ -211,7 +211,7 @@ postRouter.post("/:id/save", isAuthentified, async (req, res) => {
     });
     res.json({ message: `Updated interaction with save ${newSave.saved}` });
   } else {
-    await prisma.interactions.create({
+    await prisma.interaction.create({
       data: {
         userId: user.id,
         postId: postId,
@@ -247,7 +247,7 @@ postRouter.post(
         images: images,
       },
     });
-    await prisma.interactions.create({
+    await prisma.interaction.create({
       data: {
         userId: user.id,
         postId: post.id,
@@ -307,5 +307,40 @@ postRouter.post(
     res.json({ message: "Updated post" });
   }
 );
+
+postRouter.post("/:id/comment", isAuthentified, async (req, res) => {
+  const user = req.user as User;
+  const body = req.body as Comment;
+  const postId = req.params.id;
+  const existingPost = await prisma.post.findUnique({
+    where: {
+      id: postId,
+    },
+  });
+  if (!existingPost) return res.json({ message: "Post doesn't exist" });
+  if (body.content === "") return res.json({ message: "Comment is empty" });
+  const newComment = await prisma.comment.create({
+    data: {
+      ownerName: user.nickname,
+      postId: postId,
+      content: body.content,
+    },
+  });
+  res.json(newComment);
+});
+
+postRouter.get("/:id/comments", async (req, res) => {
+  const postId = req.params.id;
+  const comments = await prisma.comment.findMany({
+    take: 100,
+    orderBy: {
+      createdAt: "desc",
+    },
+    where: {
+      postId: postId,
+    },
+  });
+  res.json(comments);
+});
 
 export = postRouter;
