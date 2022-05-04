@@ -41,7 +41,7 @@ model Post {
 
 model Sub {
   id            String         @id @default(cuid())
-  owner         User           @relation(fields: [ownerName], references: [nickname]) //IMPL setting owner to Null is bad
+  owner         User           @relation(fields: [ownerName], references: [nickname], onDelete: SetNull) //IMPL setting owner to Null is bad
   ownerName     String         @db.Citext
   name          String         @unique @db.Citext
   description   String?
@@ -52,9 +52,9 @@ model Sub {
 
 model Comment {
   id        String   @id @default(cuid())
-  owner     User     @relation(fields: [ownerName], references: [nickname])
+  owner     User     @relation(fields: [ownerName], references: [nickname], onDelete: SetNull)
   ownerName String   @db.Citext
-  post      Post     @relation(fields: [postId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -124,7 +124,7 @@ subredditRouter.post(
       ? await prisma.sub.create({
           data: {
             name: sub.name,
-            description: sub.description,
+            description: sub.description === "" ? null : sub.description,
             ownerName: user.nickname,
             image: image.filename,
           },
@@ -132,7 +132,7 @@ subredditRouter.post(
       : await prisma.sub.create({
           data: {
             name: sub.name,
-            description: sub.description,
+            description: sub.description === "" ? null : sub.description,
             ownerName: user.nickname,
           },
         });
@@ -181,7 +181,7 @@ subredditRouter.post(
           },
           data: {
             name: body.name,
-            description: body.description,
+            description: body.description === "" ? null : body.description,
             image: image.filename,
           },
         })
@@ -191,7 +191,7 @@ subredditRouter.post(
           },
           data: {
             name: body.name,
-            description: body.description,
+            description: body.description === "" ? null : body.description,
           },
         });
     res.json(updatedSub);

@@ -238,7 +238,7 @@ postRouter.post(
       },
     });
     if (!sub) return res.json({ message: "Sub doesn't exist" });
-    const post = await prisma.post.create({
+    const newPost = await prisma.post.create({
       data: {
         subName: body.subName,
         title: body.title,
@@ -250,12 +250,12 @@ postRouter.post(
     await prisma.interaction.create({
       data: {
         userId: user.id,
-        postId: post.id,
+        postId: newPost.id,
         voteType: "UP",
       },
     });
     res.json({
-      message: `Post created! Title: ${post.title}, made by ${user.nickname}`,
+      message: `Post created! Title: ${newPost.title}, made by ${user.nickname}`,
     });
     // console.log(`Post created in sub ${body.subName} with title "${body.title}"`);
   }
@@ -368,6 +368,33 @@ postRouter.post(
       },
     });
     res.json(updatedComment);
+  }
+);
+
+postRouter.post(
+  "/:commentId/deletecomment",
+  isAuthentified,
+  async (req, res) => {
+    const commentId = req.params.commentId;
+    const user = req.user as User;
+
+    const existingComment = await prisma.comment.findUnique({
+      where: {
+        id: commentId,
+      },
+    });
+    if (!existingComment) return res.json({ message: "Comment doesn't exist" });
+    if (existingComment.ownerName !== user.nickname)
+      return res.json({
+        message: "User isn't authorized to delete this comment",
+      });
+
+    await prisma.comment.delete({
+      where: {
+        id: commentId,
+      },
+    });
+    res.json({ message: "Comment deleted" });
   }
 );
 
