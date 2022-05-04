@@ -14,6 +14,7 @@ model User {
   password      String
   name          String?
   avatar        String?
+  premium       Boolean        @default(false)
   posts         Post[]
   interactions  Interaction[]
   ownedSubs     Sub[]

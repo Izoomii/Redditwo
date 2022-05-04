@@ -308,10 +308,24 @@ postRouter.post(
   }
 );
 
-postRouter.post("/:id/comment", isAuthentified, async (req, res) => {
+postRouter.get("/:postId/comments", async (req, res) => {
+  const postId = req.params.postId;
+  const comments = await prisma.comment.findMany({
+    take: 100,
+    orderBy: {
+      createdAt: "desc",
+    },
+    where: {
+      postId: postId,
+    },
+  });
+  res.json(comments);
+});
+
+postRouter.post("/:postId/comment", isAuthentified, async (req, res) => {
   const user = req.user as User;
   const body = req.body as Comment;
-  const postId = req.params.id;
+  const postId = req.params.postId;
   const existingPost = await prisma.post.findUnique({
     where: {
       id: postId,
@@ -329,18 +343,29 @@ postRouter.post("/:id/comment", isAuthentified, async (req, res) => {
   res.json(newComment);
 });
 
-postRouter.get("/:id/comments", async (req, res) => {
-  const postId = req.params.id;
-  const comments = await prisma.comment.findMany({
-    take: 100,
-    orderBy: {
-      createdAt: "desc",
-    },
-    where: {
-      postId: postId,
-    },
-  });
-  res.json(comments);
-});
+postRouter.post(
+  "/:commentId/updatecomment",
+  isAuthentified,
+  async (req, res) => {
+    const commentId = req.params.commentId;
+    const body = req.body as Comment;
+
+    const existingComment = await prisma.comment.findUnique({
+      where: {
+        id: commentId,
+      },
+    });
+    if (!existingComment) return res.json({ message: "Comment doesn't exist" });
+    const updatedComment = await prisma.comment.update({
+      where: {
+        id: commentId,
+      },
+      data: {
+        content: body.content,
+      },
+    });
+    res.json(updatedComment);
+  }
+);
 
 export = postRouter;
