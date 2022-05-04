@@ -89,7 +89,7 @@ subredditRouter.post(`/subscribe/:subId`, isAuthentified, async (req, res) => {
       message: `[${updatedSubscription.subscribed}] Updated ${user.nickname} Subscription to ${checkSub.name}`,
     });
   } else {
-    const newSubscription = await prisma.subscription.create({
+    await prisma.subscription.create({
       data: {
         userId: user.id,
         subId: subId,
@@ -116,6 +116,9 @@ subredditRouter.post(
         name: sub.name,
       },
     });
+    const subSplit = sub.name.split(" ");
+    if (subSplit.length !== 1)
+      return res.json({ message: "Name can't have spaces" });
     if (existingSub) return res.json({ message: "Sub already exists!" });
     const newSub = image
       ? await prisma.sub.create({
@@ -162,6 +165,10 @@ subredditRouter.post(
       },
     });
     if (!sub) return res.json({ message: "Sub doesn't exist" });
+
+    const subSplit = body.name.split(" ");
+    if (subSplit.length !== 1)
+      return res.json({ message: "Name can't have spaces" });
     if (user.nickname !== sub.ownerName)
       return res.json({ message: "Not the owner of sub" });
 

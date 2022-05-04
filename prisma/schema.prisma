@@ -30,6 +30,7 @@ model Post {
   sub          Sub           @relation(fields: [subName], references: [name], onDelete: Cascade) //probably better to use ID
   subName      String        @db.Citext
   published    Boolean       @default(false)
+  edited       Boolean       @default(false)
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   author       User?         @relation(fields: [authorName], references: [nickname], onDelete: SetNull) //user's posts cannot be deleted
@@ -57,6 +58,7 @@ model Comment {
   postId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  edited    Boolean  @default(false)
   content   String
 }
 

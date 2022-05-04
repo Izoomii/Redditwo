@@ -117,7 +117,11 @@ userRouter.post("/update", isAuthentified, async (req, res) => {
   //debating whether it's worth it to add code just to not update all sections at the same time if it doesn't cost much
   const updatedInfo = req.body as updateInfo;
   const user = req.user as User;
-  if (updatedInfo.name === "") updatedInfo.name = null;
+  if (updatedInfo.name === "") updatedInfo.name = null; //CHNL before adding nickname space check
+
+  const nicknameSplit = updatedInfo.nickname.split(" ");
+  if (nicknameSplit.length !== 1)
+    return res.json({ message: "Nickname can't have spaces" });
   try {
     const updatedUser = await prisma.user.update({
       where: {
@@ -151,6 +155,12 @@ userRouter.post(
       });
     const body = req.body as User;
     const image = req.file;
+
+    const nicknameSplit = body.nickname.split(" ");
+    if (nicknameSplit.length !== 1) {
+      if (image) unlinkSync(avatarsDestination + image.filename);
+      return res.json({ message: "Nickname can't have spaces" });
+    }
 
     if (!verifyPasswordStrength(body.password)) {
       if (image) unlinkSync(avatarsDestination + image.filename); //IMPL repeated multiple times it's giving me cancer

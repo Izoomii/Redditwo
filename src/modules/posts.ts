@@ -291,6 +291,7 @@ postRouter.post(
           data: {
             title: body.title,
             content: body.content,
+            edited: true,
             images: [image.filename],
           },
         })
@@ -301,6 +302,7 @@ postRouter.post(
           data: {
             title: body.title,
             content: body.content,
+            edited: true,
           },
         });
 
@@ -362,6 +364,7 @@ postRouter.post(
       },
       data: {
         content: body.content,
+        edited: true,
       },
     });
     res.json(updatedComment);
