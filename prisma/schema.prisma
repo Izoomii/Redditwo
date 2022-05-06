@@ -14,12 +14,13 @@ model User {
   password      String
   name          String?
   avatar        String?
-  premium       Boolean        @default(false)
+  // premium       Boolean        @default(false)
   posts         Post[]
   interactions  Interaction[]
   ownedSubs     Sub[]
   subscriptions Subscription[]
   comments      Comment[]
+  Premium       Premium?
 }
 
 model Post {
@@ -41,8 +42,8 @@ model Post {
 
 model Sub {
   id            String         @id @default(cuid())
-  owner         User           @relation(fields: [ownerName], references: [nickname], onDelete: SetNull) //IMPL setting owner to Null is bad
-  ownerName     String         @db.Citext
+  owner         User?          @relation(fields: [ownerName], references: [nickname], onDelete: SetNull) //IMPL setting owner to Null is bad
+  ownerName     String?        @db.Citext
   name          String         @unique @db.Citext
   description   String?
   image         String?
@@ -52,8 +53,8 @@ model Sub {
 
 model Comment {
   id        String   @id @default(cuid())
-  owner     User     @relation(fields: [ownerName], references: [nickname], onDelete: SetNull)
-  ownerName String   @db.Citext
+  owner     User?    @relation(fields: [ownerName], references: [nickname], onDelete: SetNull)
+  ownerName String?  @db.Citext
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    String
   createdAt DateTime @default(now())
@@ -85,6 +86,18 @@ model Subscription {
   updatedAt  DateTime @updatedAt
 
   @@id([userId, subId])
+}
+
+model Premium {
+  id         String   @id @default(cuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @unique
+  active     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  expiration DateTime
+  renew      Boolean  @default(false)
+
 }
 
 enum VoteType {

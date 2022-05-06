@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { User } from "@prisma/client";
+import { Premium, User } from "@prisma/client";
 import prisma from "../libs/prisma";
 import { hash } from "argon2";
 import { verifyPasswordStrength } from "../libs/globalVars";
@@ -90,8 +90,35 @@ userRouter.get(`/`, async (req, res) => {
   }
 });
 
-//program tries to search for posts of user "verifyme", change the func responsible if u wanna test this
+userRouter.post("/premium/activate", isAuthentified, async (req, res) => {
+  const user = req.user as User;
+  const body = req.body as Premium;
+  const existingPremium = await prisma.premium.findUnique({
+    where: {
+      userId: user.id,
+    },
+  });
+  const configurePremium = existingPremium
+    ? await prisma.premium.update({
+        where: {
+          userId: user.id,
+        },
+        data: {
+          expiration: body.expiration,
+          active: true,
+        },
+      })
+    : await prisma.premium.create({
+        data: {
+          userId: user.id,
+          expiration: body.expiration,
+          active: true,
+        },
+      });
+  res.json(configurePremium);
+});
 
+//program tries to search for posts of user "verifyme", change the func responsible if u wanna test this IMPL
 // verifies a user's identity
 userRouter.get("/verifyme", async (req, res) => {
   const user = req.user as User;
@@ -220,15 +247,20 @@ userRouter.post(
 );
 
 //deletes user
-userRouter.delete("/delete/:name", async (req, res) => {
-  const userName = req.params.name;
-  //check if user exists first
-  const user = await prisma.user.delete({
+userRouter.delete("/delete/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  const existingUser = await prisma.user.findUnique({
     where: {
-      nickname: userName,
+      id: userId,
     },
   });
-  res.json({ message: `Deleted user "${user.nickname}" :(` });
+  if (!existingUser) return res.json({ message: "User doesn't exist" });
+  const deletedUser = await prisma.user.delete({
+    where: {
+      id: userId,
+    },
+  });
+  res.json({ message: `Deleted user "${deletedUser.nickname}" :(` });
 });
 
 export = userRouter;
