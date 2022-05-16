@@ -3,7 +3,11 @@ import { Router } from "express";
 import { uploadSingle } from "../libs/middleware/uploadImage";
 import { isAuthentified } from "../libs/middleware/auth";
 import prisma from "../libs/prisma";
-import { postImagesDestination } from "../libs/globalVars";
+import {
+  postImagesDestination,
+  subImagesDestination,
+} from "../libs/globalVars";
+import { unlinkSync } from "fs";
 
 const postRouter = Router();
 
@@ -237,7 +241,10 @@ postRouter.post(
         name: body.subName,
       },
     });
-    if (!sub) return res.json({ message: "Sub doesn't exist" });
+    if (!sub) {
+      if (images.length !== 0) unlinkSync(postImagesDestination + images[0]);
+      return res.json({ message: "Sub doesn't exist" });
+    }
     const newPost = await prisma.post.create({
       data: {
         subName: body.subName,
@@ -306,7 +313,7 @@ postRouter.post(
           },
         });
 
-    res.json({ message: "Updated post" });
+    res.json({ message: "Updated post", updatedPost });
   }
 );
 

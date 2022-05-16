@@ -10,47 +10,6 @@ import { unlinkSync } from "fs";
 
 const userRouter = Router();
 
-//update avatar
-userRouter.post(
-  "/updateavatar",
-  isAuthentified,
-  uploadSingle("avatar", avatarsDestination),
-  async (req, res) => {
-    const image = req.file;
-    if (!image) return console.log("No image uploaded");
-    const user = req.user as User;
-
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        avatar: image.filename,
-      },
-    });
-    req.logIn(updatedUser, (err) => {
-      // if (!err) console.log("Successfully updated user", updatedUser);
-    });
-    res.json({ updated: true, updatedUser });
-    res.end();
-  }
-);
-
-userRouter.post("/deleteavatar", isAuthentified, async (req, res) => {
-  const user = req.user as User;
-  const updateUser = await prisma.user.update({
-    where: {
-      id: user.id,
-    },
-    data: {
-      avatar: null,
-    },
-  });
-  req.logIn(updateUser, (err) => {
-    if (!err) return res.json(updateUser);
-  });
-});
-
 //finds all users registered
 userRouter.get("/all", async (_, res) => {
   const users = await prisma.user.findMany({
@@ -134,40 +93,66 @@ userRouter.post("/logout", async (req, res) => {
   res.json({ authenticate: false, message: "Logged out" });
 });
 
-interface updateInfo {
-  email?: string;
-  nickname?: string;
-  name?: string;
-}
+userRouter.post(
+  "/update",
+  isAuthentified,
+  uploadSingle("avatar", avatarsDestination),
+  async (req, res) => {
+    const updatedInfo = req.body as User;
+    const avatar = req.file;
+    const user = req.user as User;
+    if (updatedInfo.name === "") updatedInfo.name = null; //CHNL before adding nickname space check
 
-userRouter.post("/update", isAuthentified, async (req, res) => {
-  //debating whether it's worth it to add code just to not update all sections at the same time if it doesn't cost much
-  const updatedInfo = req.body as updateInfo;
-  const user = req.user as User;
-  if (updatedInfo.name === "") updatedInfo.name = null; //CHNL before adding nickname space check
+    const nicknameSplit = updatedInfo.nickname.split(" ");
+    if (nicknameSplit.length !== 1) {
+      if (avatar) unlinkSync(avatarsDestination + avatar.filename);
+      return res.json({ message: "Nickname can't have spaces" });
+    }
 
-  const nicknameSplit = updatedInfo.nickname.split(" ");
-  if (nicknameSplit.length !== 1)
-    return res.json({ message: "Nickname can't have spaces" });
-  try {
-    const updatedUser = await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: updatedInfo,
-    });
+    const updatedUser = avatar
+      ? await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            nickname: updatedInfo.nickname,
+            name: updatedInfo.name,
+            email: updatedInfo.email,
+            avatar: avatar.filename,
+          },
+        })
+      : await prisma.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            nickname: updatedInfo.nickname,
+            name: updatedInfo.name,
+            email: updatedInfo.email,
+          },
+        });
 
     req.logIn(updatedUser, (err) => {
       // if (!err) console.log("Successfully updated user", updatedUser);
     });
     res.json({ updated: true, updatedUser });
     res.end();
-  } catch {
-    res.json({
-      message:
-        "[IMPL] An error has occured. (could be multiple types of errors)",
-    });
   }
+);
+
+userRouter.post("/deleteavatar", isAuthentified, async (req, res) => {
+  const user = req.user as User;
+  const updateUser = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      avatar: null,
+    },
+  });
+  req.logIn(updateUser, (err) => {
+    if (!err) return res.json(updateUser);
+  });
 });
 
 //creates a user

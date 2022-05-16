@@ -14,6 +14,7 @@ import { frontURL } from "./libs/globalVars";
 import testRouter from "./modules/test";
 import searchRouter from "./modules/search";
 import mainRouter from "./modules/mainRouter";
+import chatRouter from "./modules/chats";
 
 const port = 8080;
 
@@ -49,6 +50,7 @@ server.use("/posts", postRouter);
 server.use("/users", userRouter);
 server.use("/subs", subredditRouter);
 server.use("/search", searchRouter);
+server.use("/chats", chatRouter);
 
 //test router
 server.use("/test", testRouter);

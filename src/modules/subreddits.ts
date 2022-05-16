@@ -116,6 +116,7 @@ subredditRouter.post(
         name: sub.name,
       },
     });
+    if (sub.name === "") return res.json({ message: "Name cannot be empty" });
     const subSplit = sub.name.split(" ");
     if (subSplit.length !== 1)
       return res.json({ message: "Name can't have spaces" });
