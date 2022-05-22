@@ -17,16 +17,17 @@ const authRouter = Router();
 
 //does the same thing as /users/:nickname ??
 //probably better to verify here
-authRouter.get("/:user", async (req, res) => {
+authRouter.get("/:nickname", async (req, res) => {
+  const nickname = req.params.nickname;
   const user = await prisma.user.findUnique({
     where: {
-      nickname: req.params.user,
+      nickname,
     },
   });
   if (user) {
-    res.json({ nickname: user.nickname });
+    res.json({ user });
   } else {
-    res.json({ nickname: null });
+    res.json({ user: null });
   }
 });
 

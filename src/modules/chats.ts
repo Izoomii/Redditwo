@@ -51,13 +51,14 @@ chatRouter.get("/:chatId", isAuthentified, async (req, res) => {
 
 chatRouter.post("/createchat", isAuthentified, async (req, res) => {
   const user = req.user as User;
+  const name = req.body.name as string;
   const participants = req.body.participants as User[]; //doesn't include current user
 
   if (participants.length === 0)
     return res.json({ message: "Can't create a chat by yourself :(" });
   const newChat = await prisma.chat.create({
     data: {
-      // name: participants.join(", "), //name is optional, will do later
+      name: name ? name : user.nickname + "CHAT" + Date.now(),
     },
   });
   const currentUserTicket = await prisma.ticket.create({

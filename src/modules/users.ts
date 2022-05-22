@@ -88,6 +88,29 @@ userRouter.get("/verifyme", async (req, res) => {
   }
 });
 
+//add auth middleware later
+userRouter.post("/verifymultiple", async (req, res) => {
+  const users = req.body.users as string[];
+  let idArray = [];
+  let valid = false;
+  for (let i = 0; i < users.length; i++) {
+    valid = true;
+    const result = await prisma.user.findUnique({
+      where: {
+        nickname: users[i],
+      },
+    });
+
+    if (!result) {
+      valid = false;
+      break;
+    } else {
+      idArray.push({ id: result.id });
+    }
+  }
+  res.json({ valid: valid, users: valid ? idArray : [] });
+});
+
 userRouter.post("/logout", async (req, res) => {
   req.logOut();
   res.json({ authenticate: false, message: "Logged out" });
